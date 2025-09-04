@@ -13,10 +13,6 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
 });
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
-});
-
 function ErrorBoundary({ children }) {
   return children;
 }
@@ -256,6 +252,7 @@ if (ReactDOM.createRoot) {
 }
 
 export default App;
+
 
 
 
