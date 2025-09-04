@@ -241,26 +241,5 @@ function App() {
   return <div style={{color:"white",padding:20}}>Loading…</div>;
 }
 
-/* ---------- Mount with logging ---------- */
-try {
-  console.log("🔵 Mount starting...");
-  const mount = <ErrorBoundary><App/></ErrorBoundary>;
-  const root = document.getElementById("auth-root");
-  if (!root) {
-    console.error("❌ No #auth-root element found in index.html");
-  } else {
-    if (ReactDOM.createRoot) {
-      console.log("🔵 Using React 18 createRoot");
-      ReactDOM.createRoot(root).render(mount);
-    } else {
-      console.log("🔵 Using ReactDOM.render");
-      ReactDOM.render(mount, root);
-    }
-  }
-} catch (e) {
-  console.error("❌ Fatal mount error:", e);
-  const el = document.body;
-  if (el) {
-    el.innerHTML = `<pre style="color:red;padding:20px;background:#111">Fatal: ${e.message}</pre>`;
-  }
-}
+  /* ---- Export only ---- */
+export default App;
