@@ -250,3 +250,5 @@ if (ReactDOM.createRoot) {
   ReactDOM.render(mount, rootEl);
 }
 
+export default App;
+
