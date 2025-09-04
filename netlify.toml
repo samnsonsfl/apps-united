@@ -2,10 +2,5 @@
   command = "npm run build"
   publish = "dist"
 
-[dev]
-  framework = "#static"
-  command   = ""
-  targetPort = 0
-  port = 8888
-
-  publish = "."
+[build.environment]
+  NODE_VERSION = "22"
