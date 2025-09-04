@@ -163,9 +163,42 @@ function StorePage({catalog,myApps,onAdd,folders,currentFolder,setFolder,search,
 
 /* ---------- App Router ---------- */
 function App() {
+  // All state hooks in one block
   const [route, setRoute] = useState("loading");
-  // ... other hooks and logic ...
+  const [err, setErr] = useState("");
+  const [loginForm, setLoginForm] = useState({ email:"", password:"", stay:true });
+  const [signupForm, setSignupForm] = useState({ fullName:"", email:"", password:"", confirm:"" });
+  const [me, setMe] = useState(null);
+  const [catalog, setCatalog] = useState([]);
+  const [myApps, setMyApps] = useState([]);
+  const [folders, setFolders] = useState([]);
+  const [currentFolder, setCurrentFolder] = useState("All Apps");
+  const [search, setSearch] = useState("");
+  const [grid, setGrid] = useState("5");
 
+  // Effect
+  useEffect(() => {
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setRoute("login"); return; }
+      if (!recent()) { await supabase.auth.signOut(); setRoute("login"); return; }
+      bump();
+      setMe(session.user);
+
+      const [{ data: apps }, { data: rows }] = await Promise.all([
+        supabase.from("apps").select("id,name,href,folder,is_active").eq("is_active",true),
+        supabase.from("user_apps").select("app_id").eq("user_id",session.user.id)
+      ]);
+
+      const setIds = new Set((rows||[]).map(r => r.app_id));
+      setCatalog(apps || []);
+      setMyApps((apps||[]).filter(a => setIds.has(a.id)));
+      setFolders(["All Apps", ...new Set((apps||[]).map(a => a.folder || "Unsorted"))]);
+      setRoute("dashboard");
+    })();
+  }, []);
+
+  // Loading splash
   if (route === "loading") {
     return (
       <div style={{color:"white",padding:20,fontSize:20}}>
@@ -173,23 +206,28 @@ function App() {
       </div>
     );
   }
-  const [route,setRoute]=useState("loading"),[err,setErr]=useState(""),[loginForm,setLoginForm]=useState({email:"",password:"",stay:true}),[signupForm,setSignupForm]=useState({fullName:"",email:"",password:"",confirm:""}),[me,setMe]=useState(null),[catalog,setCatalog]=useState([]),[myApps,setMyApps]=useState([]),[folders,setFolders]=useState([]),[currentFolder,setCurrentFolder]=useState("All Apps"),[search,setSearch]=useState(""),[grid,setGrid]=useState("5");
-  useEffect(()=>{(async()=>{const{data:{session}}=await supabase.auth.getSession();if(!session){setRoute("login");return;}if(!recent()){await supabase.auth.signOut();setRoute("login");return;}bump();setMe(session.user);const[{data:apps},{data:rows}]=await Promise.all([supabase.from("apps").select("id,name,href,folder,is_active").eq("is_active",true),supabase.from("user_apps").select("app_id").eq("user_id",session.user.id)]);const set=new Set((rows||[]).map(r=>r.app_id));setCatalog(apps||[]);setMyApps((apps||[]).filter(a=>set.has(a.id)));setFolders(["All Apps",...new Set((apps||[]).map(a=>a.folder||"Unsorted"))]);setRoute("dashboard");})();},[]);
-  async function onAdd(app){await supabase.from("user_apps").insert({user_id:me.id,app_id:app.id});setMyApps(p=>[...p,app]);}
-  async function onLogout(){await supabase.auth.signOut();setMe(null);setRoute("login");}
-  async function handleLogin(e){e.preventDefault();setErr("");try{const{error}=await supabase.auth.signInWithPassword({email:loginForm.email,password:loginForm.password});if(error)throw error;bump();setRoute("dashboard");}catch(e){setErr(e.message||"Login failed.");}}
-  async function handleSignup(e){e.preventDefault();setErr("");try{if(signupForm.password!==signupForm.confirm)throw new Error("Passwords do not match");const{error}=await supabase.auth.signUp({email:signupForm.email,password:signupForm.password,options:{data:{full_name:signupForm.fullName}}});if(error)throw error;bump();setRoute("dashboard");}catch(e){setErr(e.message||"Signup failed.");}}
-  if(route==="login")return<LoginPage err={err} form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} goSignup={()=>setRoute("signup")}/>;
-  if(route==="signup")return<SignupPage err={err} form={signupForm} setForm={setSignupForm} onSubmit={handleSignup} goLogin={()=>setRoute("login")}/>;
-  if(route==="dashboard")return<DashboardPage myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onStore={()=>setRoute("store")} onLogout={onLogout} grid={grid} setGrid={setGrid}/>;
-  if(route==="store")return<StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid}/>;
-  return<div>Loading…</div>;
-}
 
+  // Routes
+  if (route === "login")
+    return <LoginPage err={err} form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} goSignup={() => setRoute("signup")} />;
+
+  if (route === "signup")
+    return <SignupPage err={err} form={signupForm} setForm={setSignupForm} onSubmit={handleSignup} goLogin={() => setRoute("login")} />;
+
+  if (route === "dashboard")
+    return <DashboardPage myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onStore={() => setRoute("store")} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
+
+  if (route === "store")
+    return <StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
+
+  // Fallback
+  return <div style={{color:"white",padding:20}}>Loading…</div>;
+}
 
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
 const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
+
 
 
 
