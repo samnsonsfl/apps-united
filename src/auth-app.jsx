@@ -175,9 +175,13 @@ function App() {
   if(route==="store")return<StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid}/>;
   return<div>Loading…</div>;
 }
+if (route === "loading") {
+  return <div style={{color:"white",padding:20,fontSize:20}}>⏳ Loading Apps-United…</div>;
+}
 
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
 const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
+
 
 
