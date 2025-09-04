@@ -5,19 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Apps-United</title>
 
-    <!-- Styles (make sure style.css is inside /public or imported in src) -->
+    <!-- Styles -->
+    <!-- ✅ If style.css is in /public, leave it as /style.css -->
+    <!-- ✅ If style.css is in /src, import it inside main.jsx instead -->
     <link rel="stylesheet" href="/style.css" />
 
-    <!-- Icons -->
+    <!-- Favicons -->
+    <!-- Make sure these files exist in your /public folder -->
     <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+    <!-- PWA/Android icons (optional) -->
+    <link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png" />
+    <link rel="apple-touch-icon" sizes="512x512" href="/favicon-512.png" />
   </head>
   <body>
-    <!-- React mounts here -->
+    <!-- React root -->
     <div id="root"></div>
 
-    <!-- Vite injects your React app here -->
+    <!-- Vite entry point -->
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+
