@@ -163,6 +163,16 @@ function StorePage({catalog,myApps,onAdd,folders,currentFolder,setFolder,search,
 
 /* ---------- App Router ---------- */
 function App() {
+  const [route, setRoute] = useState("loading");
+  // ... other hooks and logic ...
+
+  if (route === "loading") {
+    return (
+      <div style={{color:"white",padding:20,fontSize:20}}>
+        ⏳ Loading Apps-United…
+      </div>
+    );
+  }
   const [route,setRoute]=useState("loading"),[err,setErr]=useState(""),[loginForm,setLoginForm]=useState({email:"",password:"",stay:true}),[signupForm,setSignupForm]=useState({fullName:"",email:"",password:"",confirm:""}),[me,setMe]=useState(null),[catalog,setCatalog]=useState([]),[myApps,setMyApps]=useState([]),[folders,setFolders]=useState([]),[currentFolder,setCurrentFolder]=useState("All Apps"),[search,setSearch]=useState(""),[grid,setGrid]=useState("5");
   useEffect(()=>{(async()=>{const{data:{session}}=await supabase.auth.getSession();if(!session){setRoute("login");return;}if(!recent()){await supabase.auth.signOut();setRoute("login");return;}bump();setMe(session.user);const[{data:apps},{data:rows}]=await Promise.all([supabase.from("apps").select("id,name,href,folder,is_active").eq("is_active",true),supabase.from("user_apps").select("app_id").eq("user_id",session.user.id)]);const set=new Set((rows||[]).map(r=>r.app_id));setCatalog(apps||[]);setMyApps((apps||[]).filter(a=>set.has(a.id)));setFolders(["All Apps",...new Set((apps||[]).map(a=>a.folder||"Unsorted"))]);setRoute("dashboard");})();},[]);
   async function onAdd(app){await supabase.from("user_apps").insert({user_id:me.id,app_id:app.id});setMyApps(p=>[...p,app]);}
@@ -175,13 +185,12 @@ function App() {
   if(route==="store")return<StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid}/>;
   return<div>Loading…</div>;
 }
-if (route === "loading") {
-  return <div style={{color:"white",padding:20,fontSize:20}}>⏳ Loading Apps-United…</div>;
-}
+
 
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
 const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
+
 
 
 
