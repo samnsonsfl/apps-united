@@ -1,6 +1,8 @@
 /* auth-app.jsx — Apps-United (Supabase Auth + Sidebar + Dashboard + Store + Favicons) */
 /* global React, ReactDOM, window */
-const { useState, useEffect, Component } = React;
+/* auth-app.jsx — Apps-United */
+import React, { useState, useEffect, Component } from "react";
+import ReactDOM from "react-dom/client";
 
 const SUPABASE_URL = "https://pvfxettbmykvezwahohh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
@@ -251,4 +253,5 @@ if (ReactDOM.createRoot) {
 }
 
 export default App;
+
 
