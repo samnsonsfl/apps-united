@@ -1,3 +1,5 @@
+console.log("✅ auth-app.jsx loaded");
+
 /* auth-app.jsx — Apps-United (Supabase Auth + Sidebar + Store + Grid Settings + Favicons) */
 /* global React, ReactDOM, window */
 const { useState, useEffect, useMemo, Component } = React;
@@ -162,3 +164,4 @@ function App() {
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
 const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
+
