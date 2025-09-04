@@ -5,7 +5,8 @@ console.log("✅ auth-app.jsx loaded");
 const { useState, useEffect, useMemo, Component } = React;
 
 const SUPABASE_URL = "https://pvfxettbmykvezwahohh.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
 const PUBLIC_BUCKET = "app-logos";
 
 if (!window.supabase || typeof window.supabase.createClient !== "function") {
@@ -16,7 +17,7 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 /* ---------- Overrides + helpers ---------- */
-const OVERRIDES = { "Hellotickets": "hellotickets.jpeg", "Agoda": "agoda.jpeg", "Viator": "viator.jpeg" /* … more */ };
+const OVERRIDES = { "Hellotickets": "hellotickets.jpeg", "Agoda": "agoda.jpeg", "Viator": "viator.jpeg" };
 function bucketURL(f){ return `${SUPABASE_URL}/storage/v1/object/public/${PUBLIC_BUCKET}/${encodeURIComponent(f)}`; }
 function filenameGuesses(name){ if(!name) return []; const exts=[".png",".jpg",".jpeg",".JPG",".JPEG"]; return exts.map(e=>`${name}${e}`); }
 function googleFavicon(h,size=128){ try{const host=new URL(h).hostname; return `https://www.google.com/s2/favicons?domain=${host}&sz=${size}`;}catch{return null;} }
@@ -64,7 +65,7 @@ function recent(){const t=parseInt(localStorage.getItem(LS_LAST)||"0",10);return
 /* ---------- Shell ---------- */
 function Shell({children}){return <div className="au-container">{children}</div>;}
 
-/* ---------- Sidebar with settings ---------- */
+/* ---------- Sidebar ---------- */
 function Sidebar({folders,currentFolder,setFolder,collapsed,setCollapsed,onStore,onLogout,search,setSearch,grid,setGrid}) {
   const [showSettings,setShowSettings]=useState(false);
   return (
@@ -163,7 +164,6 @@ function StorePage({catalog,myApps,onAdd,folders,currentFolder,setFolder,search,
 
 /* ---------- App Router ---------- */
 function App() {
-  // All state hooks in one block
   const [route, setRoute] = useState("loading");
   const [err, setErr] = useState("");
   const [loginForm, setLoginForm] = useState({ email:"", password:"", stay:true });
@@ -176,7 +176,6 @@ function App() {
   const [search, setSearch] = useState("");
   const [grid, setGrid] = useState("5");
 
-  // Effect
   useEffect(() => {
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -198,37 +197,51 @@ function App() {
     })();
   }, []);
 
-  // Loading splash
-  if (route === "loading") {
-    return (
-      <div style={{color:"white",padding:20,fontSize:20}}>
-        ⏳ Loading Apps-United…
-      </div>
-    );
+  /* ---- handlers ---- */
+  async function handleLogin(e){
+    e.preventDefault(); setErr("");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: loginForm.email, password: loginForm.password });
+      if (error) throw error;
+      bump();
+      setRoute("dashboard");
+    } catch (e) { setErr(e.message || "Login failed."); }
   }
 
-  // Routes
-  if (route === "login")
-    return <LoginPage err={err} form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} goSignup={() => setRoute("signup")} />;
+  async function handleSignup(e){
+    e.preventDefault(); setErr("");
+    try {
+      if (signupForm.password !== signupForm.confirm) throw new Error("Passwords do not match");
+      const { error } = await supabase.auth.signUp({
+        email: signupForm.email,
+        password: signupForm.password,
+        options: { data: { full_name: signupForm.fullName } }
+      });
+      if (error) throw error;
+      bump();
+      setRoute("dashboard");
+    } catch (e) { setErr(e.message || "Signup failed."); }
+  }
 
-  if (route === "signup")
-    return <SignupPage err={err} form={signupForm} setForm={setSignupForm} onSubmit={handleSignup} goLogin={() => setRoute("login")} />;
+  async function onLogout(){ await supabase.auth.signOut(); setMe(null); setRoute("login"); }
 
-  if (route === "dashboard")
-    return <DashboardPage myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onStore={() => setRoute("store")} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
+  async function onAdd(app){
+    try {
+      await supabase.from("user_apps").insert({ user_id: me.id, app_id: app.id });
+      setMyApps(prev => [...prev, app]);
+    } catch (e) { console.error(e); }
+  }
 
-  if (route === "store")
-    return <StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
-
-  // Fallback
+  /* ---- router ---- */
+  if (route === "loading") return <div style={{color:"white",padding:20,fontSize:20}}>⏳ Loading Apps-United…</div>;
+  if (route === "login") return <LoginPage err={err} form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} goSignup={()=>setRoute("signup")} />;
+  if (route === "signup") return <SignupPage err={err} form={signupForm} setForm={setSignupForm} onSubmit={handleSignup} goLogin={()=>setRoute("login")} />;
+  if (route === "dashboard") return <DashboardPage myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onStore={()=>setRoute("store")} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
+  if (route === "store") return <StorePage catalog={catalog} myApps={myApps} onAdd={onAdd} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onLogout={onLogout} grid={grid} setGrid={setGrid} />;
   return <div style={{color:"white",padding:20}}>Loading…</div>;
 }
 
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
-const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
-
-
-
-
-
+const root=document.getElementById("auth-root");
+(ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
