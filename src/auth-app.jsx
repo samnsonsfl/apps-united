@@ -239,19 +239,8 @@ function App() {
   return <div>Loading…</div>;
 }
 
-const mount = (
-  <ErrorBoundary>
-    <App />
-  </ErrorBoundary>
-);
-const rootEl = document.getElementById("auth-root");
-if (ReactDOM.createRoot) {
-  ReactDOM.createRoot(rootEl).render(mount);
-} else {
-  ReactDOM.render(mount, rootEl);
-}
-
 export default App;
+
 
 
 
