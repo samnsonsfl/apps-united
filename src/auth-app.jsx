@@ -7,9 +7,12 @@ import ReactDOM from "react-dom/client";
 const SUPABASE_URL = "https://pvfxettbmykvezwahohh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
 
-if (!window.supabase || typeof window.supabase.createClient !== "function") {
-  throw new Error("Supabase client script missing.");
-}
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
+});
+
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
 });
@@ -253,5 +256,6 @@ if (ReactDOM.createRoot) {
 }
 
 export default App;
+
 
 
