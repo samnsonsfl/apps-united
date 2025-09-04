@@ -39,7 +39,22 @@ function AppIcon({ app, size=54, radius=14 }) {
 }
 
 /* ---------- Error boundary ---------- */
-class ErrorBoundary extends Component{constructor(p){super(p);this.state={error:null};}static getDerivedStateFromError(e){return{error:e};}render(){return this.state.error?<div>Error</div>:this.props.children;}}
+class ErrorBoundary extends Component {
+  constructor(props){ super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error){ return { error }; }
+  componentDidCatch(error, info){ console.error("Apps-United error:", error, info); }
+  render(){
+    if (this.state.error) {
+      return (
+        <div style={{background:"#111",color:"red",padding:"20px"}}>
+          <h2>⚠️ Crash in Apps-United</h2>
+          <pre>{this.state.error.message || String(this.state.error)}</pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ---------- Session helpers ---------- */
 const THIRTY_DAYS=30*24*60*60*1000;const LS_LAST="appsUnited.lastActive";
@@ -164,4 +179,5 @@ function App() {
 /* ---------- Mount ---------- */
 const mount=<ErrorBoundary><App/></ErrorBoundary>;
 const root=document.getElementById("auth-root"); (ReactDOM.createRoot?ReactDOM.createRoot(root):ReactDOM).render(mount);
+
 
