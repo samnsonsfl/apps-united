@@ -1,22 +1,30 @@
-/* auth-app.jsx — Apps-United (Supabase Auth + Sidebar + Dashboard + Store + Favicons) */
+/* auth-app.jsx — Apps-United (Supabase Auth + Sidebar + Dashboard + Store + Favicons + Styled Login/Signup) */
 /* global React, ReactDOM, window */
-/* auth-app.jsx — Apps-United */
-import React, { useState, useEffect, Component } from "react";
-import ReactDOM from "react-dom/client";
+const { useState, useEffect, Component } = React;
 
 const SUPABASE_URL = "https://pvfxettbmykvezwahohh.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
 
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+if (!window.supabase || typeof window.supabase.createClient !== "function") {
+  throw new Error("Supabase client script missing.");
+}
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false },
 });
 
-function ErrorBoundary({ children }) {
-  return children;
+/* Error boundary */
+class ErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return <div className="au-container" style={{ padding: 40 }}>Something went wrong.</div>;
+    }
+    return this.props.children;
+  }
 }
 
+/* Favicons */
 function getFaviconUrl(app, size = 128) {
   try {
     if (app?.site_url) {
@@ -61,10 +69,10 @@ function AppIcon({ app, size = 54 }) {
       </div>
     );
   }
-
   return <img className="app-icon__img" src={src} alt="" width={size} height={size} onError={handleError} />;
 }
 
+/* Shell */
 function Shell({ children }) {
   return (
     <div className="au-container">
@@ -80,6 +88,7 @@ function Shell({ children }) {
   );
 }
 
+/* Sidebar */
 function Sidebar({ folders, currentFolder, setFolder, onStore, onLogout }) {
   const [collapsed, setCollapsed] = useState(false);
   return (
@@ -121,7 +130,59 @@ function Sidebar({ folders, currentFolder, setFolder, onStore, onLogout }) {
   );
 }
 
-function DashboardPage({ me, myApps, setFolder, currentFolder, search, setSearch, folders, onStore, onLogout }) {
+/* Login / Signup */
+function LoginPage({ err, form, setForm, onSubmit, goSignup }) {
+  return (
+    <Shell>
+      <div className="au-grid" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <div className="au-card">
+          <div className="au-card-header"><h2>Sign in</h2></div>
+          <div className="au-card-content">
+            {err && <div className="au-error">{err}</div>}
+            <form onSubmit={onSubmit} className="au-grid" style={{ gap: 16 }}>
+              <input className="au-input" type="email" placeholder="you@example.com" value={form.email}
+                onChange={(e)=>setForm(s=>({...s,email:e.target.value}))} required />
+              <input className="au-input" type="password" placeholder="••••••••" value={form.password}
+                onChange={(e)=>setForm(s=>({...s,password:e.target.value}))} required />
+              <button type="submit" className="au-btn au-btn-primary">Sign in</button>
+              <button type="button" className="au-btn au-btn-secondary" onClick={goSignup}>Create account</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+function SignupPage({ err, form, setForm, onSubmit, goLogin }) {
+  return (
+    <Shell>
+      <div className="au-grid" style={{ maxWidth: 400, margin: "0 auto" }}>
+        <div className="au-card">
+          <div className="au-card-header"><h2>Create your account</h2></div>
+          <div className="au-card-content">
+            {err && <div className="au-error">{err}</div>}
+            <form onSubmit={onSubmit} className="au-grid" style={{ gap: 16 }}>
+              <input className="au-input" placeholder="Full name" value={form.fullName}
+                onChange={(e)=>setForm(s=>({...s,fullName:e.target.value}))} />
+              <input className="au-input" type="email" placeholder="you@example.com" value={form.email}
+                onChange={(e)=>setForm(s=>({...s,email:e.target.value}))} />
+              <input className="au-input" type="password" placeholder="Password" value={form.password}
+                onChange={(e)=>setForm(s=>({...s,password:e.target.value}))} />
+              <input className="au-input" type="password" placeholder="Confirm password" value={form.confirm}
+                onChange={(e)=>setForm(s=>({...s,confirm:e.target.value}))} />
+              <button type="submit" className="au-btn au-btn-primary">Create account</button>
+              <button type="button" className="au-btn au-btn-secondary" onClick={goLogin}>I already have an account</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  );
+}
+
+/* Dashboard */
+function DashboardPage({ myApps, folders, currentFolder, setFolder, search, setSearch, onStore, onLogout }) {
   const visible = currentFolder === "All Apps" ? myApps : myApps.filter(a => (a.folder || "Unsorted") === currentFolder);
   const filtered = search.trim() ? visible.filter(a => a.name.toLowerCase().includes(search.toLowerCase())) : visible;
   return (
@@ -129,7 +190,7 @@ function DashboardPage({ me, myApps, setFolder, currentFolder, search, setSearch
       <div style={{ display: "flex", minHeight: "100vh" }}>
         <Sidebar folders={folders} currentFolder={currentFolder} setFolder={setFolder} onStore={onStore} onLogout={onLogout} />
         <div style={{ flex: 1, padding: "20px" }}>
-          <input className="au-input" placeholder="Search your apps…" value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: "16px" }} />
+          <input className="au-input" placeholder="Search your apps…" value={search} onChange={e=>setSearch(e.target.value)} style={{ marginBottom: "16px" }} />
           <div className="apps-grid apps-grid--5">
             {filtered.map(app => (
               <div key={app.id} className="app-tile">
@@ -146,16 +207,17 @@ function DashboardPage({ me, myApps, setFolder, currentFolder, search, setSearch
   );
 }
 
-function StorePage({ catalog, myApps, setFolder, currentFolder, search, setSearch, folders, onAdd, onLogout }) {
+/* Store */
+function StorePage({ catalog, myApps, folders, currentFolder, setFolder, search, setSearch, onAdd, onLogout }) {
   const visible = currentFolder === "All Apps" ? catalog : catalog.filter(a => (a.folder || "Unsorted") === currentFolder);
   const filtered = search.trim() ? visible.filter(a => a.name.toLowerCase().includes(search.toLowerCase())) : visible;
   const myIds = new Set(myApps.map(a => a.id));
   return (
     <Shell>
       <div style={{ display: "flex", minHeight: "100vh" }}>
-        <Sidebar folders={folders} currentFolder={currentFolder} setFolder={setFolder} onStore={() => {}} onLogout={onLogout} />
+        <Sidebar folders={folders} currentFolder={currentFolder} setFolder={setFolder} onStore={()=>{}} onLogout={onLogout} />
         <div style={{ flex: 1, padding: "20px" }}>
-          <input className="au-input" placeholder="Search all apps…" value={search} onChange={e => setSearch(e.target.value)} style={{ marginBottom: "16px" }} />
+          <input className="au-input" placeholder="Search all apps…" value={search} onChange={e=>setSearch(e.target.value)} style={{ marginBottom: "16px" }} />
           <div className="apps-grid apps-grid--5">
             {filtered.map(app => {
               const added = myIds.has(app.id);
@@ -165,11 +227,9 @@ function StorePage({ catalog, myApps, setFolder, currentFolder, search, setSearc
                     <AppIcon app={app} />
                     <div className="app-name">{app.name}</div>
                   </a>
-                  <div className="app-actions">
-                    <button className="au-btn au-btn-primary" disabled={added} onClick={() => onAdd(app)}>
-                      {added ? "Added" : "Add"}
-                    </button>
-                  </div>
+                  <button className="au-btn au-btn-primary" disabled={added} onClick={()=>onAdd(app)}>
+                    {added ? "Added" : "Add"}
+                  </button>
                 </div>
               );
             })}
@@ -180,8 +240,12 @@ function StorePage({ catalog, myApps, setFolder, currentFolder, search, setSearc
   );
 }
 
+/* App Router */
 function App() {
   const [route, setRoute] = useState("loading");
+  const [err, setErr] = useState("");
+  const [loginForm, setLoginForm] = useState({ email:"", password:"" });
+  const [signupForm, setSignupForm] = useState({ fullName:"", email:"", password:"", confirm:"" });
   const [me, setMe] = useState(null);
   const [catalog, setCatalog] = useState([]);
   const [myApps, setMyApps] = useState([]);
@@ -216,32 +280,48 @@ function App() {
   }
   async function onLogout() {
     await supabase.auth.signOut();
-    setMe(null);
-    setRoute("login");
+    setMe(null); setRoute("login");
   }
 
-  if (route === "dashboard") {
-    return <DashboardPage me={me} myApps={myApps} setFolder={setCurrentFolder} currentFolder={currentFolder} search={search} setSearch={setSearch} folders={folders} onStore={() => setRoute("store")} onLogout={onLogout} />;
+  async function handleLogin(e) {
+    e.preventDefault(); setErr("");
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginForm.email.trim(), password: loginForm.password
+      });
+      if (error) throw error;
+      setRoute("dashboard");
+    } catch (e) { setErr(e.message || "Login failed."); }
   }
-  if (route === "store") {
-    return <StorePage catalog={catalog} myApps={myApps} setFolder={setCurrentFolder} currentFolder={currentFolder} search={search} setSearch={setSearch} folders={folders} onAdd={onAdd} onLogout={onLogout} />;
+
+  async function handleSignup(e) {
+    e.preventDefault(); setErr("");
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: signupForm.email.trim(), password: signupForm.password,
+        options: { data: { full_name: signupForm.fullName.trim() } }
+      });
+      if (error) throw error;
+      setRoute("dashboard");
+    } catch (e) { setErr(e.message || "Signup failed."); }
   }
-  if (route === "login") {
-    return (
-      <Shell>
-        <div style={{ maxWidth: 400, margin: "0 auto" }}>
-          <h2>Login Placeholder</h2>
-          {/* Replace with your styled login/signup */}
-        </div>
-      </Shell>
-    );
-  }
+
+  if (route === "login")
+    return <LoginPage err={err} form={loginForm} setForm={setLoginForm} onSubmit={handleLogin} goSignup={()=>setRoute("signup")} />;
+  if (route === "signup")
+    return <SignupPage err={err} form={signupForm} setForm={setSignupForm} onSubmit={handleSignup} goLogin={()=>setRoute("login")} />;
+  if (route === "dashboard")
+    return <DashboardPage myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onStore={()=>setRoute("store")} onLogout={onLogout} />;
+  if (route === "store")
+    return <StorePage catalog={catalog} myApps={myApps} folders={folders} currentFolder={currentFolder} setFolder={setCurrentFolder} search={search} setSearch={setSearch} onAdd={onAdd} onLogout={onLogout} />;
   return <div>Loading…</div>;
 }
 
-export default App;
-
-
-
-
-
+/* Mount */
+const mount = <ErrorBoundary><App /></ErrorBoundary>;
+const rootEl = document.getElementById("auth-root");
+if (ReactDOM.createRoot) {
+  ReactDOM.createRoot(rootEl).render(mount);
+} else {
+  ReactDOM.render(mount, rootEl);
+}
