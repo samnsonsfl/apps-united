@@ -1,4 +1,4 @@
-/* src/auth-app.jsx — Apps-United (Supabase + Icons + Debug Logs) */
+/* src/auth-app.jsx — Apps-United (Supabase + Auto-Favicons + Debug Logs) */
 import React, { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -10,7 +10,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ================== AppIcon ================== */
 function AppIcon({ app, size = 54 }) {
-  if (!app?.url) {
+  if (!app?.href) {
     // If no URL, fallback to first letter of name
     return (
       <div
@@ -33,9 +33,9 @@ function AppIcon({ app, size = 54 }) {
   }
 
   // Build favicon URLs
-  const domain = new URL(app.url).hostname;
+  const domain = new URL(app.href).hostname;
   const googleFavicon = `https://www.google.com/s2/favicons?sz=${size * 2}&domain=${domain}`;
-  const siteFavicon = `${new URL(app.url).origin}/favicon.ico`;
+  const siteFavicon = `${new URL(app.href).origin}/favicon.ico`;
 
   const [iconSrc, setIconSrc] = React.useState(googleFavicon);
 
@@ -67,7 +67,7 @@ export default function App() {
         console.log("🔍 Fetching apps from Supabase…");
         const { data, error } = await supabase
           .from("apps")
-          .select("id, name, icon_url, href")
+          .select("id, name, href, is_active")
           .eq("is_active", true);
 
         if (error) {
@@ -94,7 +94,13 @@ export default function App() {
   return (
     <div style={{ padding: 20, fontFamily: "system-ui, sans-serif" }}>
       <h1>Apps-United Dashboard</h1>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, 100px)", gap: 16 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, 100px)",
+          gap: 16,
+        }}
+      >
         {apps.map((app) => (
           <div key={app.id} style={{ textAlign: "center" }}>
             <AppIcon app={app} />
@@ -105,4 +111,3 @@ export default function App() {
     </div>
   );
 }
-
