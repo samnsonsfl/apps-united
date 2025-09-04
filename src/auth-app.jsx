@@ -10,7 +10,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ================== AppIcon ================== */
 function AppIcon({ app, size = 54 }) {
-  if (!app?.icon_url) {
+  if (!app?.url) {
+    // If no URL, fallback to first letter of name
     return (
       <div
         style={{
@@ -30,9 +31,17 @@ function AppIcon({ app, size = 54 }) {
       </div>
     );
   }
+
+  // Build favicon URLs
+  const domain = new URL(app.url).hostname;
+  const googleFavicon = `https://www.google.com/s2/favicons?sz=${size * 2}&domain=${domain}`;
+  const siteFavicon = `${new URL(app.url).origin}/favicon.ico`;
+
+  const [iconSrc, setIconSrc] = React.useState(googleFavicon);
+
   return (
     <img
-      src={app.icon_url}
+      src={iconSrc}
       alt={app.name}
       style={{
         width: size,
@@ -40,9 +49,7 @@ function AppIcon({ app, size = 54 }) {
         borderRadius: 12,
         objectFit: "cover",
       }}
-      onError={(e) => {
-        e.currentTarget.style.display = "none";
-      }}
+      onError={() => setIconSrc(siteFavicon)} // fallback if Google fails
     />
   );
 }
@@ -98,3 +105,4 @@ export default function App() {
     </div>
   );
 }
+
