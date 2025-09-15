@@ -1,6 +1,11 @@
 /* auth-app.jsx — Apps-United login, signup, dashboard (CDN React, no build) */
 const { useState, useEffect, useMemo, Component } = React;
 
+/* -------------------- Supabase Init -------------------- */
+const SUPABASE_URL = "https://pvfxettbmykvezwahohh.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 /* -------------------- Error Boundary -------------------- */
 class ErrorBoundary extends Component {
   constructor(props){ super(props); this.state = { error: null }; }
@@ -21,31 +26,10 @@ class ErrorBoundary extends Component {
   }
 }
 
-/* -------------------- Storage & helpers -------------------- */
-const LS_USERS = "appsUnited.users";
-const LS_SESSION = "appsUnited.session";
+/* -------------------- Helpers -------------------- */
 const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000;
-
-const demoHash = (s) => "hash_" + btoa(unescape(encodeURIComponent(s))).replace(/=/g, "");
-
-function loadUsers(){ try { return JSON.parse(localStorage.getItem(LS_USERS) || "[]"); } catch { return []; } }
-function saveUsers(u){ localStorage.setItem(LS_USERS, JSON.stringify(u)); }
-function loadSession(){ try { return JSON.parse(localStorage.getItem(LS_SESSION) || "null"); } catch { return null; } }
-function saveSession(s){ localStorage.setItem(LS_SESSION, JSON.stringify(s)); }
-function clearSession(){ localStorage.removeItem(LS_SESSION); }
-
-function getUserByEmail(email){
-  return loadUsers().find(u => u.email.toLowerCase() === (email||"").toLowerCase());
-}
-function upsertUser(user){
-  const users = loadUsers();
-  const i = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
-  if (i >= 0) users[i] = user; else users.push(user);
-  saveUsers(users);
-}
-function isSessionFresh(s, now=Date.now()){
-  if (!s) return false;
-  return s.persistent && (now - (s.lastActive || 0)) < THIRTY_DAYS;
+function isSessionFresh(lastActive, now=Date.now()){
+  return lastActive && (now - lastActive) < THIRTY_DAYS;
 }
 
 /* -------------------- Starter apps -------------------- */
