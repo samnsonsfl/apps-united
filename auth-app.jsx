@@ -156,7 +156,6 @@ function LoginPage({ err, form, setForm, onSubmit, goSignup, route, onLogout }) 
                   value={form.password}
                   onChange={(e) =>
                     setForm((s) => ({ ...s, password: e.target.value }))
-                  }
                   autoComplete="current-password"
                   required
                 />
@@ -321,7 +320,7 @@ function App() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data?.user) {
+      if (data && data.user) {
         setMe({ fullName: data.user.user_metadata.fullName, email: data.user.email });
         setRoute("dashboard");
       } else {
