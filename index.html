@@ -5,9 +5,11 @@
   <title>Apps-United</title>
   <link rel="stylesheet" href="style.css" />
 
-  <!-- React + Babel -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- React + ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+
+  <!-- Babel (only for development / in-browser JSX) -->
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
   <!-- Supabase -->
@@ -16,7 +18,7 @@
 <body>
   <div id="auth-root"></div>
 
-  <!-- Your app -->
+  <!-- Your app code -->
   <script type="text/babel" src="auth-app.jsx"></script>
 </body>
 </html>
