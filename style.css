@@ -1,0 +1,74 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+  color: white;
+}
+
+/* Layout */
+.au-container {
+  min-height: 100vh;
+  padding: 20px;
+}
+.au-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+.au-brand { display: flex; gap: 8px; }
+
+/* Card */
+.au-card {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(6px);
+}
+.au-card-header { margin-bottom: 12px; }
+.au-card-footer { margin-top: 12px; }
+
+/* Inputs */
+.au-input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+.au-input::placeholder { color: rgba(255,255,255,0.6); }
+
+/* Buttons */
+.au-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+.au-btn-primary {
+  background: #2563eb;
+  color: white;
+}
+.au-btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* Grid helpers */
+.au-grid { display: grid; gap: 16px; }
+.au-grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.au-row { display: flex; gap: 8px; align-items: center; }
+.au-row-between { display: flex; justify-content: space-between; align-items: center; }
+
+/* Text helpers */
+.au-subtle { font-size: 1rem; }
+.au-note { font-size: 0.85rem; color: rgba(255,255,255,0.8); }
+.au-badge {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 999px;
+}
