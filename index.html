@@ -1,24 +1,21 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Apps-United</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apps-United</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./favicon.ico" />
+  <link rel="stylesheet" href="./style.css" />
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="auth-root"></div>
 
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
-    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-
-    <!-- PWA/Android icons -->
-    <link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="/favicon-512.png" />
-  </head>
-  <body>
-    <!-- React root -->
-    <div id="auth-root"></div>
-
-    <!-- Vite entry point -->
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+  <!-- Our app -->
+  <script type="text/babel" src="./auth-app.jsx"></script>
+</body>
 </html>
