@@ -150,15 +150,16 @@ function LoginPage({ err, form, setForm, onSubmit, goSignup, route, onLogout }) 
               <div>
                 <label className="au-note">Password</label>
                 <input
-                  className="au-input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm((s) => ({ ...s, password: e.target.value }))
-                  autoComplete="current-password"
-                  required
-                />
+  className="au-input"
+  type="password"
+  placeholder="••••••••"
+  value={form.password}
+  onChange={(e) => {
+    setForm((s) => ({ ...s, password: e.target.value }));
+  }}
+  autoComplete="current-password"
+  required
+/>
               </div>
               <div className="au-row-between" style={{ marginTop: 4 }}>
                 <button
