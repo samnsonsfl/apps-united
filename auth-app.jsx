@@ -273,7 +273,9 @@ function DashboardPage({ me, route, onLogout }) {
   return (
     <Shell route={route} onLogout={onLogout}>
       <div className="au-grid" style={{ gap: 24 }}>
-        <h2 style={{ fontWeight: 600 }}>Welcome {me?.fullName || ""} 👋</h2>
+        <h2 style={{ fontWeight: 600 }}>
+  Welcome {me && me.fullName ? me.fullName : ""} 👋
+</h2>
         <div className="au-grid au-grid-3">
           {apps.map((app) => (
             <div key={app.id} className="au-card">
