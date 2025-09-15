@@ -266,10 +266,10 @@ function SignupPage({ err, form, setForm, onSubmit, goLogin, route, onLogout }) 
 
 /* -------------------- Dashboard -------------------- */
 function DashboardPage({ me, route, onLogout }) {
-  const apps = useMemo(
-    () => (me?.apps?.length ? me.apps : defaultApps),
-    [me]
-  );
+  const apps = useMemo(() => {
+  if (me && me.apps && me.apps.length) return me.apps;
+  return defaultApps;
+}, [me]);
   return (
     <Shell route={route} onLogout={onLogout}>
       <div className="au-grid" style={{ gap: 24 }}>
