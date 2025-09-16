@@ -131,33 +131,45 @@
     }
 
     // =============== RENDER ===============
-    function render(apps){
-      const host = document.getElementById("catalog");
-      host.innerHTML = "";
+function render(apps){
+  const host = document.getElementById("catalog");
+  host.innerHTML = "";
 
-      if (!apps.length){
-        host.innerHTML = `<p class="muted">No apps available.</p>`;
-        return;
-      }
+  if (!apps.length){
+    host.innerHTML = `<p class="muted">No apps available.</p>`;
+    return;
+  }
 
-      const grid = document.createElement("div");
-      grid.className = "grid";
+  const grid = document.createElement("div");
+  grid.className = "grid";
 
-      apps.forEach(app=>{
-        const card = document.createElement("button");
-        card.className = "tile link";
-        card.onclick = ()=>openAffiliate(app.href);
+  apps.forEach(app=>{
+    const card = document.createElement("div");
+    card.className = "tile";
 
-        card.innerHTML = `
-          <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-          <div class="name">${app.name}</div>
-          <div class="muted">${app.description || ''}</div>
-        `;
-        grid.appendChild(card);
-      });
+    card.innerHTML = `
+      <button class="remove-btn" title="Remove app">×</button>
+      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+      <div class="name">${app.name}</div>
+      <div class="muted">${app.description || ''}</div>
+    `;
 
-      host.appendChild(grid);
-    }
+    // Open app when clicking the icon or name
+    card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+    card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+
+    // Remove app when clicking the ×
+    card.querySelector(".remove-btn").onclick = (e)=>{
+      e.stopPropagation(); // prevent triggering openAffiliate
+      removeApp(app.id);
+    };
+
+    grid.appendChild(card);
+  });
+
+  host.appendChild(grid);
+}
+
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -200,5 +212,6 @@
   </script>
 </body>
 </html>
+
 
 
