@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>App Store</title>
+  <style>
+    body { margin:0; font-family:system-ui; display:flex; height:100vh; }
+    aside { width:220px; background:#111827; color:#fff; padding:20px; overflow-y:auto; }
+    aside h2 { font-size:16px; margin:0 0 12px; }
+    aside button { display:block; width:100%; padding:8px 12px; border:0; background:#1f2937; color:#fff; margin-bottom:6px; border-radius:8px; text-align:left; cursor:pointer; }
+    aside button:hover { background:#374151; }
+    main { flex:1; padding:20px; background:#f9fafb; overflow-y:auto; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
+    .tile { background:#fff; border-radius:16px; box-shadow:0 4px 10px rgba(0,0,0,.1); padding:16px; text-align:center; }
+    .app-icon { width:64px; height:64px; margin:0 auto 8px; border-radius:12px; overflow:hidden; background:#f3f4f6; display:flex; align-items:center; justify-content:center; }
+    .app-icon img { width:100%; height:100%; object-fit:contain; }
+    .tile h3 { font-size:14px; margin:0 0 4px; }
+    .tile p { font-size:12px; color:#6b7280; min-height:32px; }
+    .badge { display:inline-block; padding:2px 6px; font-size:10px; background:#2563eb; color:#fff; border-radius:6px; margin-top:4px; }
+    .tile button { margin-top:8px; background:#2563eb; color:#fff; border:0; padding:6px 10px; border-radius:8px; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <aside>
+    <h2>Categories</h2>
+    <div id="categories"></div>
+  </aside>
+  <main>
+    <div class="grid" id="apps"></div>
+  </main>
+
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+  const supabaseUrl = "YOUR_SUPABASE_URL";
+  const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  let allApps = [];
+  let currentCategory = null;
+
+  async function loadApps(){
+    const { data, error } = await supabase
+      .from("apps")
+      .select("id, name, href, description, badge, logo_url, icon_url, folder")
+      .eq("is_active", true);
+
+    if(error){ console.error(error); return; }
+    allApps = data;
+    renderCategories();
+    renderApps();
+  }
+
+  function renderCategories(){
+    const cats = [...new Set(allApps.map(a=>a.folder || "Other"))].sort();
+    const el = document.getElementById("categories");
+    el.innerHTML = "";
+    cats.forEach(cat=>{
+      const btn = document.createElement("button");
+      btn.textContent = cat;
+      btn.onclick = ()=>{ currentCategory = cat; renderApps(); };
+      el.appendChild(btn);
+    });
+  }
+
+  function renderApps(){
+    const grid = document.getElementById("apps");
+    grid.innerHTML = "";
+    let list = currentCategory ? allApps.filter(a=>a.folder===currentCategory) : allApps;
+    list.forEach(app=>{
+      const card = document.createElement("div");
+      card.className = "tile";
+      card.innerHTML = `
+        <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+        <h3>${app.name}</h3>
+        <p>${app.description || ''}</p>
+        ${app.badge ? `<div class="badge">${app.badge}</div>` : ""}
+      `;
+      const btn = document.createElement("button");
+      btn.textContent = "Add";
+      btn.onclick = ()=>addApp(app);
+      card.appendChild(btn);
+      grid.appendChild(card);
+    });
+  }
+
+  async function addApp(app){
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert("You must be logged in to save apps.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("user_apps")
+      .insert({ user_id: user.id, app_id: app.id });
+
+    if(error){
+      console.error(error);
+      alert("Error saving app.");
+    } else {
+      alert(`${app.name} added to your launcher!`);
+    }
+  }
+
+  loadApps();
+</script>
+</body>
+</html>
