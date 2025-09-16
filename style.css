@@ -20,10 +20,11 @@ header {
 }
 
 .main-logo {
-  width: 32px;
-  height: 32px;
+  width: 34px;   /* match store logo */
+  height: 34px;  /* match store logo */
   border-radius: 8px;
   object-fit: contain;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* optional: same subtle shadow */
 }
 
 .store-btn {
