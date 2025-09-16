@@ -82,42 +82,34 @@ aside {
 #authBtnWrapper {
   margin-top: auto;
   padding-top: 12px;
-  display: flex;               /* force same row */
+  display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center;   /* ✅ vertically align logo + text */
   gap: 10px;
 }
 
-#authBtn, #homeBtn {
-  flex: 1;                     /* let them share space */
+#homeBtn, #authBtn {
+  display: flex;          /* ✅ makes contents (icon or text) center properly */
+  align-items: center;
+  justify-content: center;
+  flex: 1;                /* share row space */
   padding: 8px 12px;
   border: 0;
   border-radius: 6px;
   background: none;
   color: #9ca3af;
   cursor: pointer;
-  text-align: center;
   font-size: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15); /* narrower/smaller shadow */
-}
-
-#authBtn:hover, #homeBtn:hover {
-  color: #fff;
-  background: #1f2937;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
 
 #homeBtn img {
-  width: 34px;   /* keep your full logo size */
+  width: 34px;
   height: 34px;
   border-radius: 8px;
   object-fit: contain;
-  display: block;
-  margin: 0 auto;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15); /* match narrower shadow */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
-
-
-
 
 /* Layout */
 .au-container {
