@@ -140,10 +140,7 @@ function render(apps){
     return;
   }
 
-  // 1. Sort apps by name
-  apps.sort((a, b) => a.name.localeCompare(b.name));
-
-  // 2. Group by category (folder field is used as category here)
+  // 1. Group apps by category (folder field is category)
   const categories = {};
   apps.forEach(app => {
     const cat = app.folder || "Other";
@@ -151,16 +148,20 @@ function render(apps){
     categories[cat].push(app);
   });
 
+  // 2. Sort categories A-Z
   const sortedCategories = Object.keys(categories).sort();
 
-  // 3. Render categories + apps
+  // 3. Render each category
   sortedCategories.forEach(cat => {
     const section = document.createElement("div");
-    section.className = "category";
 
-    // Category title
-    section.innerHTML = `<div class="section">${cat}</div>`;
+    // Category heading
+    const heading = document.createElement("div");
+    heading.className = "section";
+    heading.textContent = cat;
+    section.appendChild(heading);
 
+    // Apps grid
     const grid = document.createElement("div");
     grid.className = "grid";
 
@@ -195,8 +196,6 @@ function render(apps){
     host.appendChild(section);
   });
 }
-
-
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -261,6 +260,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
