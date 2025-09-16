@@ -111,6 +111,19 @@ aside {
   object-fit: contain;
 }
 
+.section {
+  margin: 32px 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827; /* darker text */
+  border-bottom: 2px solid #e5e7eb; /* light divider line */
+  padding-bottom: 4px;
+}
+
+.section {
+  color: #f3f4f6;
+  border-bottom-color: #374151;
+}
 
 /* Layout */
 .au-container {
