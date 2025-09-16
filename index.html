@@ -140,34 +140,33 @@ function render(apps){
     return;
   }
 
-  console.log(apps.map(a => ({ name: a.name, folder: a.folder })));
-
-  // 1. Group apps by category (folder field is category)
+  // Group by category (folder field)
   const categories = {};
   apps.forEach(app => {
-    const cat = app.folder || "Other";
+    const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
     if (!categories[cat]) categories[cat] = [];
     categories[cat].push(app);
   });
 
-  // 2. Sort categories A-Z
+  // Sort categories A-Z
   const sortedCategories = Object.keys(categories).sort();
 
-  // 3. Render each category
+  // Build each category section
   sortedCategories.forEach(cat => {
     const section = document.createElement("div");
+    section.className = "category-section";
 
-    // Category heading
+    // Category title
     const heading = document.createElement("div");
     heading.className = "section";
     heading.textContent = cat;
     section.appendChild(heading);
 
-    // Apps grid
+    // Grid for apps
     const grid = document.createElement("div");
     grid.className = "grid";
 
-    // Sort apps inside category
+    // Sort apps A-Z inside category
     categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
     categories[cat].forEach(app => {
@@ -198,6 +197,7 @@ function render(apps){
     host.appendChild(section);
   });
 }
+
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -262,6 +262,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
