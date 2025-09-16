@@ -19,14 +19,6 @@ header {
   padding: 20px;
 }
 
-.main-logo {
-  width: 34px;   /* match store logo */
-  height: 34px;  /* match store logo */
-  border-radius: 8px;
-  object-fit: contain;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15); /* optional: same subtle shadow */
-}
-
 .store-btn {
   border: none;
   background: transparent;
@@ -36,11 +28,14 @@ header {
   align-items: center;
 }
 
+.main-logo,
 .store-logo {
   width: 34px;
   height: 34px;
   border-radius: 8px;
+  object-fit: contain;
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  display: block;      /* prevents extra spacing below the image */
 }
 
 .tile {
