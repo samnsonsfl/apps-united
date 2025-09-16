@@ -35,6 +35,28 @@
     footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; }
     .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
+    .remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.remove-btn:hover {
+  background: rgba(220,38,38,0.85); /* red on hover */
+}
+.tile {
+  position: relative; /* allow absolutely positioned remove button */
+}
 
     /* Main logo & Store button logos */
     .main-logo,
@@ -178,4 +200,5 @@
   </script>
 </body>
 </html>
+
 
