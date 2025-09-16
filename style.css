@@ -54,6 +54,45 @@ header {
   transform: scale(1.05);
 }
 
+aside {
+  width:220px;
+  background:#111827;
+  color:#fff;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+}
+
+#categories {
+  flex:1;
+  overflow-y:auto;
+  margin-bottom:12px;
+}
+
+#authBtnWrapper {
+  margin-top:auto;
+  padding-top:12px;
+}
+
+#authBtn {
+  width:100%;
+  padding:10px;
+  border:0;
+  border-radius:6px;
+  background:none;         /* no fill */
+  color:#9ca3af;           /* gray text */
+  cursor:pointer;
+  text-align:left;
+  font-size:14px;
+}
+
+#authBtn:hover {
+  color:#fff;              /* highlight on hover */
+  background:#1f2937;      /* subtle hover bg */
+}
+
+
 /* Layout */
 .au-container {
   min-height: 100vh;
