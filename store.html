@@ -39,12 +39,19 @@
 </head>
 <body>
   <aside>
-    <h2>Categories</h2>
-    <div id="categories"></div>
-    <div id="authBtnWrapper">
-      <button id="authBtn">Login</button>
-    </div>
-  </aside>
+  <h2>Categories</h2>
+  <div id="categories"></div>
+
+  <!-- Search bar -->
+  <input type="search" id="storeSearch" placeholder="Search apps…" />
+
+  <div id="authBtnWrapper">
+    <button id="homeBtn" class="icon-btn">
+      <img src="favicon-192.png" alt="Home" />
+    </button>
+    <button id="authBtn">Login</button>
+  </div>
+</aside>
   <main>
     <div class="grid" id="apps"></div>
   </main>
