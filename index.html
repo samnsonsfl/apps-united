@@ -205,6 +205,28 @@ function render(apps){
 
     init();
 
+    // =============== REMOVE APP ===============
+async function removeApp(appId){
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    alert("You must be logged in.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("user_apps")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("app_id", appId);
+
+  if(error){
+    console.error(error);
+    alert("Error removing app.");
+  } else {
+    init(); // Refresh app list
+  }
+}
+
     // =============== STORE BUTTON ACTION ===============
     document.getElementById("storeBtn").addEventListener("click", () => {
       window.location.href = "store.html";
@@ -212,6 +234,7 @@ function render(apps){
   </script>
 </body>
 </html>
+
 
 
 
