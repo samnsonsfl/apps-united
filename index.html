@@ -140,6 +140,8 @@ function render(apps){
     return;
   }
 
+  console.log(apps.map(a => ({ name: a.name, folder: a.folder })));
+
   // 1. Group apps by category (folder field is category)
   const categories = {};
   apps.forEach(app => {
@@ -260,6 +262,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
