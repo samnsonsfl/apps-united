@@ -7,7 +7,12 @@
   
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
+
+  <!-- App Icons -->
+  <link rel="icon" type="image/x-icon" href="favicon2.ico">
+  <link rel="apple-touch-icon" sizes="192x192" href="app-store-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="app-store-512x512.png">
+
   <style>
     :root { color-scheme: light dark; }
     * { box-sizing: border-box; }
@@ -32,39 +37,20 @@
     .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
 
-    /* Store button styling */
+    /* Store button */
     .store-btn {
       border: none;
       background: transparent;
       cursor: pointer;
       margin-left: 12px;
-      position: relative;
-    }
-    .store-icon {
-      width: 34px;
-      height: 28px;
-      background: linear-gradient(135deg,#4f46e5,#06b6d4);
-      border-radius: 6px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      position: relative;
+    }
+    .store-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    .store-icon .logo-mini {
-      font-size: 14px;
-      font-weight: 800;
-      color: #fff;
-    }
-    .store-icon .handle {
-      position: absolute;
-      top: -6px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 16px;
-      height: 6px;
-      border-radius: 3px;
-      background: #4f46e5;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -89,10 +75,7 @@
       </div>
       <!-- Store Button -->
       <button id="storeBtn" class="store-btn" title="Open App Store">
-        <div class="store-icon">
-          <div class="logo-mini">A</div>
-          <div class="handle"></div>
-        </div>
+        <img src="app-store-192x192.png" alt="App Store" class="store-logo">
       </button>
     </div>
   </header>
@@ -114,7 +97,7 @@
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
     const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
+    const supabaseKey = "YOUR_SUPABASE_ANON_KEY";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // =============== UTILS ===============
@@ -192,4 +175,3 @@
   </script>
 </body>
 </html>
-
