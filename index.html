@@ -82,25 +82,32 @@
 
     // =============== RENDER ===============
     function render(apps){
-      const host = document.getElementById("catalog");
-      host.innerHTML = "";
-      if (!apps.length){
-        host.innerHTML = `<p class="muted">No apps available.</p>`;
-        return;
-      }
-      apps.forEach(app=>{
-        const card = document.createElement("button");
-        card.className = "tile link";
-        card.onclick = ()=>openAffiliate(app.href);
+  const host = document.getElementById("catalog");
+  host.innerHTML = "";
 
-        card.innerHTML = `
-          <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-          <div class="name">${app.name}</div>
-          <div class="muted">${app.description || ''}</div>
-        `;
-        host.appendChild(card);
-      });
-    }
+  if (!apps.length){
+    host.innerHTML = `<p class="muted">No apps available.</p>`;
+    return;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "grid";
+
+  apps.forEach(app=>{
+    const card = document.createElement("button");
+    card.className = "tile link";
+    card.onclick = ()=>openAffiliate(app.href);
+
+    card.innerHTML = `
+      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+      <div class="name">${app.name}</div>
+      <div class="muted">${app.description || ''}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  host.appendChild(grid);
+}
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -138,4 +145,5 @@
   </script>
 </body>
 </html>
+
 
