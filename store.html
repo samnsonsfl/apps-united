@@ -56,29 +56,6 @@
     <div class="grid" id="apps"></div>
   </main>
 
-<script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js";
-
-  const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
-  const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  let allApps = [];
-  let currentCategory = null;
-
-  async function loadApps(){
-    const { data, error } = await supabase
-      .from("apps")
-      .select("id, name, href, description, badge, logo_url, icon_url, folder")
-      .eq("is_active", true);
-
-    if(error){ console.error(error); return; }
-    allApps = data;
-    renderCategories();
-    renderApps();
-    updateAuthButton();   // update login/logout state
-  }
-
   function renderCategories(){
     const cats = [...new Set(allApps.map(a=>a.folder || "Other"))].sort();
     const el = document.getElementById("categories");
@@ -90,6 +67,61 @@
       el.appendChild(btn);
     });
   }
+
+  function renderApps(){
+    // your existing code...
+  }
+
+  async function addApp(app){
+    // your existing code...
+  }
+
+  async function updateAuthButton(){
+    // your existing code...
+  }
+
+  // 👇 Add these two pieces here
+  // Home button
+  document.getElementById("homeBtn").onclick = () => {
+    location.href = "index.html";
+  };
+
+  // Search filter
+  const storeSearch = document.getElementById("storeSearch");
+  storeSearch.addEventListener("input", () => {
+    const q = storeSearch.value.toLowerCase();
+    let list = allApps;
+
+    if (q) {
+      list = allApps.filter(app =>
+        (app.name || "").toLowerCase().includes(q) ||
+        (app.description || "").toLowerCase().includes(q)
+      );
+    }
+
+    const grid = document.getElementById("apps");
+    grid.innerHTML = "";
+    list.forEach(app=>{
+      const card = document.createElement("div");
+      card.className = "tile";
+      card.innerHTML = `
+        <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+        <h3>${app.name}</h3>
+        <p>${app.description || ''}</p>
+        ${app.badge ? `<div class="badge">${app.badge}</div>` : ""}
+      `;
+      const btn = document.createElement("button");
+      btn.textContent = "Add";
+      btn.onclick = ()=>addApp(app);
+      card.appendChild(btn);
+      grid.appendChild(card);
+    });
+  });
+
+  // 👆 End of additions
+
+  loadApps();  // leave this at the bottom
+
 
   function renderApps(){
     const grid = document.getElementById("apps");
