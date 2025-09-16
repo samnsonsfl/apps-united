@@ -1,8 +1,28 @@
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #1e293b, #334155);
-  color: white;
+  background: #f6f7fb;
+  text-align: center;
+}
+
+header {
+  padding: 20px;
+  background: #2563eb;
+  color: #fff;
+}
+
+.tile {
+  background: #fff;
+  padding: 10px;
+  border-radius: 12px;
+  width: 120px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,.1);
+  transition: transform 0.2s;
+}
+
+.tile:hover {
+  transform: scale(1.05);
 }
 
 /* Layout */
