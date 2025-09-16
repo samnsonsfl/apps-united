@@ -83,17 +83,18 @@ aside {
   margin-top: auto;
   padding-top: 12px;
   display: flex;
+  align-items: center;       /* keep them vertically aligned */
   justify-content: space-between;
-  align-items: center;   /* ✅ vertically align logo + text */
-  gap: 10px;
+  gap: 8px;
 }
 
 #homeBtn, #authBtn {
-  display: flex;          /* ✅ makes contents (icon or text) center properly */
-  align-items: center;
-  justify-content: center;
-  flex: 1;                /* share row space */
-  padding: 8px 12px;
+  flex: 1;                   
+  height: 40px;              /* 🔑 force same height */
+  display: flex;
+  align-items: center;       /* center contents vertically */
+  justify-content: center;   /* center contents horizontally */
+  padding: 0 10px;
   border: 0;
   border-radius: 6px;
   background: none;
@@ -108,8 +109,8 @@ aside {
   height: 34px;
   border-radius: 8px;
   object-fit: contain;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
 }
+
 
 /* Layout */
 .au-container {
