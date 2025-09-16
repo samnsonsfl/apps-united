@@ -11,6 +11,14 @@ header {
   color: #fff;
 }
 
+#catalog {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+}
+
 .tile {
   background: #fff;
   padding: 10px;
