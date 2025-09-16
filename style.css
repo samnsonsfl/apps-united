@@ -82,15 +82,15 @@ aside {
 #authBtnWrapper {
   margin-top: auto;
   padding-top: 12px;
-  display: flex;
-  justify-content: space-between; /* put logo & button on same line */
+  display: flex;               /* force same row */
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 #authBtn, #homeBtn {
-  flex: 1;
-  padding: 8px;                 /* a bit tighter */
+  flex: 1;                     /* let them share space */
+  padding: 8px 12px;
   border: 0;
   border-radius: 6px;
   background: none;
@@ -98,7 +98,7 @@ aside {
   cursor: pointer;
   text-align: center;
   font-size: 14px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.12); /* half shadow */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15); /* narrower/smaller shadow */
 }
 
 #authBtn:hover, #homeBtn:hover {
@@ -107,11 +107,15 @@ aside {
 }
 
 #homeBtn img {
-  width: 20px;   /* small to balance with button text */
-  height: 20px;
+  width: 34px;   /* keep your full logo size */
+  height: 34px;
+  border-radius: 8px;
+  object-fit: contain;
   display: block;
   margin: 0 auto;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15); /* match narrower shadow */
 }
+
 
 
 
