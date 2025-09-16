@@ -32,6 +32,41 @@
     .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
 
+    /* Store button styling */
+    .store-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      margin-left: 12px;
+      position: relative;
+    }
+    .store-icon {
+      width: 34px;
+      height: 28px;
+      background: linear-gradient(135deg,#4f46e5,#06b6d4);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .store-icon .logo-mini {
+      font-size: 14px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .store-icon .handle {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 16px;
+      height: 6px;
+      border-radius: 3px;
+      background: #4f46e5;
+    }
+
     @media (prefers-color-scheme: dark) {
       body { background: #0b1220; color: #e6e7ea; }
       header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
@@ -48,17 +83,18 @@
   <header>
     <div class="wrap">
       <div class="logo" aria-hidden="true">A</div>
-      <h1>Apps Uniteed</h1>
+      <h1>Apps United</h1>
       <div style="margin-left:auto; flex:1; max-width: 460px;">
         <input id="q" type="search" placeholder="Search partners, categories…" aria-label="Search partners" />
       </div>
+      <!-- Store Button -->
+      <button id="storeBtn" class="store-btn" title="Open App Store">
+        <div class="store-icon">
+          <div class="logo-mini">A</div>
+          <div class="handle"></div>
+        </div>
+      </button>
     </div>
-    <button id="storeBtn" class="store-btn" title="Open App Store">
-  <div class="store-icon">
-    <div class="logo-mini">A</div>
-    <div class="handle"></div>
-  </div>
-</button>
   </header>
 
   <main>
@@ -88,32 +124,32 @@
 
     // =============== RENDER ===============
     function render(apps){
-  const host = document.getElementById("catalog");
-  host.innerHTML = "";
+      const host = document.getElementById("catalog");
+      host.innerHTML = "";
 
-  if (!apps.length){
-    host.innerHTML = `<p class="muted">No apps available.</p>`;
-    return;
-  }
+      if (!apps.length){
+        host.innerHTML = `<p class="muted">No apps available.</p>`;
+        return;
+      }
 
-  const grid = document.createElement("div");
-  grid.className = "grid";
+      const grid = document.createElement("div");
+      grid.className = "grid";
 
-  apps.forEach(app=>{
-    const card = document.createElement("button");
-    card.className = "tile link";
-    card.onclick = ()=>openAffiliate(app.href);
+      apps.forEach(app=>{
+        const card = document.createElement("button");
+        card.className = "tile link";
+        card.onclick = ()=>openAffiliate(app.href);
 
-    card.innerHTML = `
-      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-      <div class="name">${app.name}</div>
-      <div class="muted">${app.description || ''}</div>
-    `;
-    grid.appendChild(card);
-  });
+        card.innerHTML = `
+          <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+          <div class="name">${app.name}</div>
+          <div class="muted">${app.description || ''}</div>
+        `;
+        grid.appendChild(card);
+      });
 
-  host.appendChild(grid);
-}
+      host.appendChild(grid);
+    }
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -148,9 +184,12 @@
     }
 
     init();
+
+    // =============== STORE BUTTON ACTION ===============
+    document.getElementById("storeBtn").addEventListener("click", () => {
+      window.location.href = "store.html";
+    });
   </script>
 </body>
 </html>
-
-
 
