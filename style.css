@@ -19,6 +19,29 @@ header {
   padding: 20px;
 }
 
+.main-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.store-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.store-logo {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
 .tile {
   background: transparent;
   border-radius: 0;
