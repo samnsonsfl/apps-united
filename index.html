@@ -1,90 +1,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Add App — Affiliate App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Affiliate App</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <style>
     :root { color-scheme: light dark; }
     * { box-sizing: border-box; }
-    body { margin:0; font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:#f6f7fb; color:#0b1220 }
-    .wrap { max-width:720px; margin:0 auto; padding:20px 16px }
-    h1 { font-size:20px; margin:0 0 12px }
-    form { background:#fff; border:1px solid #e5e7eb; border-radius:16px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
-    label { display:block; font-weight:600; font-size:14px; margin:10px 0 6px }
-    input, textarea { width:100%; border:1px solid #d7dbe2; border-radius:12px; padding:10px 12px; font:inherit }
-    textarea { min-height:80px }
-    .hint { color:#6b7280; font-size:12px; margin-top:4px }
-    .btn { appearance:none; border:1px solid #2563eb; background:#2563eb; color:#fff; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer }
-    .btn.sec { background:#fff; color:#2563eb }
-    .actions { display:flex; gap:12px; margin-top:16px }
-    .ok { margin-top:14px; padding:12px; border-radius:12px; background:#ecfdf5; color:#065f46; border:1px solid #a7f3d0; display:none }
-    a { color:#2563eb; text-decoration:none }
-    @media (prefers-color-scheme: dark){
-      body { background:#0b1220; color:#e6e7ea }
-      form { background:#131a2a; border-color:#28324a }
-      input,textarea { background:#0e1422; border-color:#28324a; color:#e6e7ea }
+    body { margin: 0; font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f6f7fb; color:#0b1220; }
+    header { position: sticky; top: 0; backdrop-filter: saturate(140%) blur(8px); background: rgba(255,255,255,.86); border-bottom: 1px solid #eef0f4; z-index: 10; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+    .logo { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; background: linear-gradient(135deg,#4f46e5,#06b6d4); color:#fff; font-weight: 800; }
+    h1 { font-size: 18px; margin: 0; }
+    input[type=search] { width: 100%; border: 1px solid #d7dbe2; border-radius: 12px; padding: 10px 12px; }
+    main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+    .hint { color:#3b3f49; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; font-size: 14px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 14px; }
+    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; }
+    .tile:hover { box-shadow: 0 10px 34px rgba(0,0,0,.10); }
+    .app-icon { width: 64px; height: 64px; border-radius: 14px; background:#fff; border:1px solid #e5e7eb; display:grid; place-items:center; overflow:hidden }
+    .app-icon img { width: 60px; height: 60px; object-fit: contain }
+    .name { font-weight: 650; font-size: 14px; text-align:center }
+    .muted { color:#6b7280; font-size: 12px; text-align:center }
+    .section { margin: 22px 0 8px; font-weight: 600; color:#0b1220; }
+    button.link { appearance: none; border: 0; background: transparent; text-align: left; padding: 0; cursor: pointer; }
+    footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; }
+    .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
+    .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b1220; color: #e6e7ea; }
+      header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
+      .hint { background:#0e1422; border-color:#28324a; color:#cbd5e1 }
+      .tile { background: #131a2a; box-shadow: 0 8px 26px rgba(0,0,0,.5); }
+      input[type=search] { background:#0e1422; color:#e6e7ea; border-color:#28324a; }
+      .app-icon { background:#1b2240; }
+      .muted { color:#9aa3b2; }
       .btn { border-color:#3b82f6; background:#3b82f6; color:#0b1220 }
-      .btn.sec { background:transparent; color:#8ab4ff; border-color:#28324a }
-      .ok { background:#052e2b; color:#d1fae5; border-color:#065f46 }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Add App</h1>
-    <p class="hint">Tip: If you leave “Logo URL” empty and your logo registry has a matching key, the logo will auto-fill.</p>
-
-    <!-- IMPORTANT: action="javascript:void(0)" ensures no real form POST even if JS is blocked -->
-    <form id="addForm" action="javascript:void(0)">
-      <label>App name</label>
-      <input id="name" placeholder="e.g., Marriott" required />
-
-      <label>Affiliate link (full https URL)</label>
-      <input id="url" placeholder="https://www.marriott.com/...?affiliate=..." required />
-
-      <div class="row">
-        <label>Category <span class="hint">(optional)</span></label>
-        <input id="category" placeholder="Hotels, Flights, Everything…" />
+  <header>
+    <div class="wrap">
+      <div class="logo" aria-hidden="true">A</div>
+      <h1>Affiliate App</h1>
+      <div style="margin-left:auto; flex:1; max-width: 460px;">
+        <input id="q" type="search" placeholder="Search partners, categories…" aria-label="Search partners" />
       </div>
+      <button id="addBtn" class="btn" title="Add another app">＋ Add App</button>
+    </div>
+  </header>
 
-      <div class="row">
-        <label>Logo URL <span class="hint">(optional — leave blank to auto-use from registry if available)</span></label>
-        <input id="logo" placeholder="https://dl.dropboxusercontent.com/.../marriott.jpeg" />
-      </div>
+  <main>
+    <div class="hint" id="instructions">
+      <strong>Make this your "All‑Apps" launcher:</strong>
+      Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app to access all your other apps via your affiliate links. iPhone (Safari): Share → Add to Home Screen. Android (Chrome): ⋮ menu → Install app / Add to Home Screen.
+    </div>
 
-      <label>Short caption <span class="hint">(optional)</span></label>
-      <textarea id="desc" placeholder="Book stays worldwide."></textarea>
+    <div id="catalog" style="margin-top:14px;"></div>
+  </main>
 
-      <div class="actions">
-        <button type="submit" class="btn">Save App</button>
-        <a class="btn sec" href="https://www.apps-united.com/">Cancel</a>
-      </div>
-
-      <div id="ok" class="ok">
-        Saved! <a id="backLink" href="https://www.apps-united.com/">Return to the launcher</a>.
-      </div>
-    </form>
-  </div>
+  <footer>
+    Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
+  </footer>
 
   <script>
-    // Where to go after saving:
-    const REDIRECT_URL = 'https://www.apps-united.com/';
+    // ================= SETTINGS (no UI; edit here or pass via ?registry=) =================
+    // 1) Optional: hardcode your Dropbox JSON registry link here (recommended):
+    //    Example value (replace with your actual shared file link):
+    //    const DEFAULT_LOGO_REGISTRY_URL = 'https://api.jsonbin.io/v3/b/68b22be843b1c97be92fc6a0/latest?meta=false'; // dropbox registry
+    const DEFAULT_LOGO_REGISTRY_URL = 'https://api.jsonbin.io/v3/b/68b22be843b1c97be92fc6a0/latest?meta=false';
+    
+    // 2) You can also set ?registry=<URL> once in the address bar; we'll store it in localStorage
+    const STORAGE_KEYS = { partners:'affiliate_apps_v1', registry:'logo_registry_url_v1', registryCache:'logo_registry_cache_v1' };
 
-    // Same storage keys as the main page
-    const STORAGE_KEYS = {
-      partners:'affiliate_apps_v1',
-      registry:'logo_registry_url_v1',
-      registryCache:'logo_registry_cache_v1',
+    // ================= DEFAULT PARTNERS =================
+    const DEFAULT_PARTNERS = [
+      { id:'amazon', name:'Amazon', category:'Everything', desc:'Shop millions of items.', url:'https://www.amazon.com/?tag=YOURTAG-20', logo:'' },
+      { id:'hellotickets', name:'HelloTickets', category:'Tickets & Attractions', desc:'Tours, shows, and city passes.', url:'https://www.hellotickets.com/?affid=YOUR_IMPACT_ID', logo:'' },
+      { id:'viator', name:'Viator', category:'Tours & Activities', desc:'Experiences around the world.', url:'https://www.viator.com/?pid=YOUR_VIATOR_PID', logo:'' },
+      { id:'agoda', name:'Agoda', category:'Hotels', desc:'Great hotel deals worldwide.', url:'https://www.agoda.com/?cid=YOUR_AGODA_CID', logo:'' },
+      { id:'paw-com', name:'Paw.com', category:'Pets', desc:'Beds, rugs & gear for pets.', url:'https://www.paw.com/?ref=YOUR_ID', logo:'' },
+      { id:'starwood-pet-travel', name:'Starwood Pet Travel', category:'Pets', desc:'International pet relocation.', url:'https://www.starwoodpettravel.com/?ref=YOUR_ID', logo:'' }
+    ];
+
+    // ================= STORAGE HELPERS =================
+    const loadPartners = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.partners));
+        if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_PARTNERS;
+        // Ensure required defaults exist (merge by id without duplicating)
+        const byId = new Map(stored.map(p => [p.id, p]));
+        DEFAULT_PARTNERS.forEach(d => { if (!byId.has(d.id)) byId.set(d.id, d); });
+        return Array.from(byId.values());
+      } catch { return DEFAULT_PARTNERS }
+    };
+    const savePartners = (list) => localStorage.setItem(STORAGE_KEYS.partners, JSON.stringify(list));
+
+    // Registry URL: from query param (one-time), else localStorage, else default constant
+    const qp = new URLSearchParams(location.search);
+    const qpRegistry = qp.get('registry');
+    if (qpRegistry) localStorage.setItem(STORAGE_KEYS.registry, qpRegistry);
+    const LOGO_REGISTRY_URL = localStorage.getItem(STORAGE_KEYS.registry) || DEFAULT_LOGO_REGISTRY_URL;
+
+    let PARTNERS = loadPartners();
+
+    // ================= UTILS =================
+    const slug = (s='') => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    const byCategory = (items) => {
+      const map = new Map();
+      items.forEach(p => {
+        const key = p.category || 'Other';
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(p);
+      });
+      return [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0]));
     };
 
-    const slug = (s='') => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+    function openAffiliate(url){
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
 
     function normalizeDropbox(url=''){
       try {
         if (!url) return '';
         const u = new URL(url);
         if (u.hostname.includes('dropbox.com')) {
+          // Serve raw bytes and preserve required keys like rlkey/st
           u.hostname = 'dl.dropboxusercontent.com';
           const params = new URLSearchParams(u.search);
           if (!params.has('raw') && !params.has('dl')) params.set('raw','1');
@@ -95,74 +142,137 @@
       } catch { return url; }
     }
 
-    // Load logo registry (same as main page)
+    // ================= LOGO REGISTRY (JSON) =================
     let logoRegistry = {};
+
     async function loadRegistry(){
-      const LOGO_REGISTRY_URL = localStorage.getItem(STORAGE_KEYS.registry) || 'https://api.jsonbin.io/v3/b/68b22be843b1c97be92fc6a0/latest?meta=false';
+      if (!LOGO_REGISTRY_URL) return;
       try {
+        // Cache for a day
         const cached = JSON.parse(localStorage.getItem(STORAGE_KEYS.registryCache) || 'null');
         const now = Date.now();
         if (cached && (now - cached.time < 24*60*60*1000) && cached.url === LOGO_REGISTRY_URL) {
           logoRegistry = cached.map || {};
           return;
         }
-        const res = await fetch(LOGO_REGISTRY_URL);
+        const res = await fetch(normalizeDropbox(LOGO_REGISTRY_URL));
+        if (!res.ok) throw new Error('Registry fetch failed');
         const txt = await res.text();
         const data = JSON.parse(txt);
+        // Normalize keys to slugs
         const map = {};
         Object.keys(data||{}).forEach(k => { map[slug(k)] = normalizeDropbox(String(data[k]||'')); });
         logoRegistry = map;
         localStorage.setItem(STORAGE_KEYS.registryCache, JSON.stringify({ url: LOGO_REGISTRY_URL, time: now, map }));
-      } catch(e){ console.warn('Registry load error', e); }
+      } catch (e) {
+        console.warn('Logo registry error:', e);
+        logoRegistry = {};
+      }
     }
 
-    function getPartners(){ try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.partners)) || []; } catch { return []; } }
-    function savePartners(list){ localStorage.setItem(STORAGE_KEYS.partners, JSON.stringify(list)); }
-
-    function pickLogo(nameOrId, provided){
-      if (provided) return normalizeDropbox(provided);
-      const key = slug(nameOrId);
+    function logoFromRegistry(p){
+      const key = p.id || slug(p.name||'');
       return logoRegistry[key] || '';
     }
 
-    document.getElementById('addForm').addEventListener('submit', async (e) => {
-      // never allow a real POST
-      e.preventDefault();
+    function resolveLogo(p){
+      // Priority: explicit per-app logo → registry → placeholder
+      const candidate = p.logo || logoFromRegistry(p);
+      return normalizeDropbox(candidate || '');
+    }
 
-      // make sure registry is available (for auto logo)
-      await loadRegistry();
+    // ================= RENDER =================
+    function makeTile(p){
+      const card = document.createElement('button');
+      card.className = 'tile link';
+      card.title = p.name;
+      card.addEventListener('click', () => openAffiliate(p.url));
 
-      const name = document.getElementById('name').value.trim();
-      const url  = document.getElementById('url').value.trim();
-      const category = (document.getElementById('category').value.trim() || 'Other');
-      const logoInput = document.getElementById('logo').value.trim();
-      const desc = document.getElementById('desc').value.trim();
+      const icon = document.createElement('div');
+      icon.className = 'app-icon';
+      const img = document.createElement('img');
+      img.alt = `${p.name} logo`;
+      const placeholder = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2214%22 fill=%22%23eef2ff%22/%3E%3Ctext x=%2232%22 y=%2238%22 font-size=%2224%22 text-anchor=%22middle%22 fill=%22%233730a3%22 font-family=%22system-ui%22%3E' + (p.name||'?').slice(0,2) + '%3C/text%3E%3C/svg%3E';
+      img.src = resolveLogo(p) || placeholder;
+      img.onerror = () => { img.src = placeholder; img.onerror = null; };
+      icon.appendChild(img);
 
-      if (!name || !/^https?:\/\//i.test(url)) { alert('Please enter a valid name and https URL.'); return; }
+      const name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = p.name;
 
-      const id = slug(name);
-      const partners = getPartners();
-      if (partners.some(p => p.id === id)) {
-        // already exists → just go back
-        window.top ? window.top.location.assign(REDIRECT_URL) : window.location.assign(REDIRECT_URL);
+      const cap = document.createElement('div');
+      cap.className = 'muted';
+      cap.textContent = p.desc || '';
+
+      card.appendChild(icon);
+      card.appendChild(name);
+      card.appendChild(cap);
+      return card;
+    }
+
+    function render(list){
+      const host = document.getElementById('catalog');
+      host.innerHTML = '';
+      const groups = byCategory(list);
+      if (!groups.length){
+        const p = document.createElement('p');
+        p.className = 'muted';
+        p.textContent = 'No partners match your search.';
+        host.appendChild(p);
         return;
       }
+      groups.forEach(([cat, items]) => {
+        const title = document.createElement('div');
+        title.className = 'section';
+        title.textContent = cat;
+        host.appendChild(title);
 
-      const logo = pickLogo(id, logoInput);
+        const grid = document.createElement('div');
+        grid.className = 'grid';
+        items.forEach(p => grid.appendChild(makeTile(p)));
+        host.appendChild(grid);
+      });
+    }
+
+    // ================= SEARCH =================
+    const $q = document.getElementById('q');
+    let t;
+    function doFilter(){
+      const s = ($q.value||'').trim().toLowerCase();
+      if (!s) return render(PARTNERS);
+      const out = PARTNERS.filter(p => [p.name, p.category, p.desc].some(v => (v||'').toLowerCase().includes(s)));
+      render(out);
+    }
+    $q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(doFilter, 120); });
+
+    // ================= ADD NEW APP (no duplicates) =================
+    document.getElementById('addBtn').addEventListener('click', async () => {
+      const name = prompt('App name (e.g., Amazon, Viator)');
+      if (!name) return;
+      const id = slug(name);
+      if (PARTNERS.some(p => p.id === id)) { alert('That app already exists. You cannot add duplicates.'); return; }
+      const url = prompt('Affiliate link (paste full https URL with your tag)');
+      if (!url || !/^https?:\/\//i.test(url)) { alert('Please enter a valid https URL.'); return; }
+      const category = prompt('Category (optional, e.g., Hotels, Activities, Everything)') || 'Other';
+      // Try registry for logo automatically; user can override below if desired
+      let logo = logoFromRegistry({ id, name }) || '';
+      const allowCustom = confirm('Use the registry logo if available? Click Cancel to paste a custom logo URL.');
+      if (!allowCustom) logo = prompt('Logo URL (optional)') || logo;
+      const desc = prompt('Short caption (optional, e.g., Shop millions of items)') || '';
+
       const entry = { id, name, url, category, logo, desc };
-      const next = [...partners, entry].sort((a,b)=>a.name.localeCompare(b.name));
-      savePartners(next);
-
-      // Redirect robustly; if blocked (iframe), show a success link instead
-      try {
-        window.top ? window.top.location.replace(REDIRECT_URL) : window.location.replace(REDIRECT_URL);
-      } catch (_) {
-        document.getElementById('ok').style.display = 'block';
-        document.getElementById('backLink').href = REDIRECT_URL;
-      }
+      PARTNERS = [...PARTNERS, entry].sort((a,b)=>a.name.localeCompare(b.name));
+      savePartners(PARTNERS);
+      doFilter();
     });
+
+    // ================= INIT =================
+    (async function init(){
+      await loadRegistry();
+      render(PARTNERS);
+    })();
   </script>
 </body>
 </html>
-
 
