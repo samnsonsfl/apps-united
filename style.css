@@ -112,17 +112,18 @@ aside {
 }
 
 .section {
-  margin: 32px 0 12px;
-  font-size: 18px;
+  margin: 28px 0 10px;
+  font-size: 20px;
   font-weight: 700;
-  color: #111827; /* darker text */
-  border-bottom: 2px solid #e5e7eb; /* light divider line */
-  padding-bottom: 4px;
+  color: #111827;
+  text-align: left;
 }
 
-.section {
-  color: #f3f4f6;
-  border-bottom-color: #374151;
+/* Dark mode override */
+@media (prefers-color-scheme: dark) {
+  .section {
+    color: #e6e7ea;
+  }
 }
 
 /* Layout */
