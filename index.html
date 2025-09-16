@@ -140,35 +140,62 @@ function render(apps){
     return;
   }
 
-  const grid = document.createElement("div");
-  grid.className = "grid";
+  // 1. Sort apps by name
+  apps.sort((a, b) => a.name.localeCompare(b.name));
 
-  apps.forEach(app=>{
-    const card = document.createElement("div");
-    card.className = "tile";
-
-    card.innerHTML = `
-      <button class="remove-btn" title="Remove app">×</button>
-      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-      <div class="name">${app.name}</div>
-      <div class="muted">${app.description || ''}</div>
-    `;
-
-    // Open app when clicking the icon or name
-    card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
-    card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
-
-    // Remove app when clicking the ×
-    card.querySelector(".remove-btn").onclick = (e)=>{
-      e.stopPropagation(); // prevent triggering openAffiliate
-      removeApp(app.id);
-    };
-
-    grid.appendChild(card);
+  // 2. Group by category (folder field is used as category here)
+  const categories = {};
+  apps.forEach(app => {
+    const cat = app.folder || "Other";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(app);
   });
 
-  host.appendChild(grid);
+  const sortedCategories = Object.keys(categories).sort();
+
+  // 3. Render categories + apps
+  sortedCategories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category";
+
+    // Category title
+    section.innerHTML = `<div class="section">${cat}</div>`;
+
+    const grid = document.createElement("div");
+    grid.className = "grid";
+
+    // Sort apps inside category
+    categories[cat].sort((a, b) => a.name.localeCompare(b.name));
+
+    categories[cat].forEach(app => {
+      const card = document.createElement("div");
+      card.className = "tile";
+
+      card.innerHTML = `
+        <button class="remove-btn" title="Remove app">×</button>
+        <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+        <div class="name">${app.name}</div>
+        <div class="muted">${app.description || ''}</div>
+      `;
+
+      // Click name/icon → open affiliate
+      card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+      card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+
+      // Remove app
+      card.querySelector(".remove-btn").onclick = (e)=>{
+        e.stopPropagation();
+        removeApp(app.id);
+      };
+
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    host.appendChild(section);
+  });
 }
+
 
 
     // =============== LOAD APPS ===============
@@ -234,6 +261,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
