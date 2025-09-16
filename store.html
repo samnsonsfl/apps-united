@@ -5,10 +5,27 @@
   <title>App Store</title>
   <style>
     body { margin:0; font-family:system-ui; display:flex; height:100vh; }
-    aside { width:220px; background:#111827; color:#fff; padding:20px; overflow-y:auto; }
+    aside { width:220px; background:#111827; color:#fff; padding:20px; display:flex; flex-direction:column; }
     aside h2 { font-size:16px; margin:0 0 12px; }
     aside button { display:block; width:100%; padding:8px 12px; border:0; background:#1f2937; color:#fff; margin-bottom:6px; border-radius:8px; text-align:left; cursor:pointer; }
     aside button:hover { background:#374151; }
+    #categories { flex:1; overflow-y:auto; margin-bottom:12px; }
+    #authBtnWrapper { margin-top:auto; padding-top:12px; }
+    #authBtn {
+      width:100%;
+      padding:10px;
+      border:0;
+      border-radius:6px;
+      background:none;         /* no background */
+      color:#9ca3af;           /* subtle gray */
+      cursor:pointer;
+      text-align:left;
+      font-size:14px;
+    }
+    #authBtn:hover {
+      color:#fff;
+      background:#1f2937;      /* subtle hover bg */
+    }
     main { flex:1; padding:20px; background:#f9fafb; overflow-y:auto; }
     .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
     .tile { background:#fff; border-radius:16px; box-shadow:0 4px 10px rgba(0,0,0,.1); padding:16px; text-align:center; }
@@ -22,12 +39,12 @@
 </head>
 <body>
   <aside>
-  <h2>Categories</h2>
-  <div id="categories"></div>
-  <div id="authBtnWrapper">
-    <button id="authBtn">Login</button>
-  </div>
-</aside>
+    <h2>Categories</h2>
+    <div id="categories"></div>
+    <div id="authBtnWrapper">
+      <button id="authBtn">Login</button>
+    </div>
+  </aside>
   <main>
     <div class="grid" id="apps"></div>
   </main>
@@ -52,6 +69,7 @@
     allApps = data;
     renderCategories();
     renderApps();
+    updateAuthButton();   // update login/logout state
   }
 
   function renderCategories(){
@@ -103,6 +121,22 @@
       alert("Error saving app.");
     } else {
       alert(`${app.name} added to your launcher!`);
+    }
+  }
+
+  async function updateAuthButton() {
+    const { data: { user } } = await supabase.auth.getUser();
+    const authBtn = document.getElementById("authBtn");
+
+    if (user) {
+      authBtn.textContent = "Logout";
+      authBtn.onclick = async () => {
+        await supabase.auth.signOut();
+        location.href = "login.html";
+      };
+    } else {
+      authBtn.textContent = "Login";
+      authBtn.onclick = () => location.href = "login.html";
     }
   }
 
