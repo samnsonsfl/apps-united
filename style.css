@@ -111,6 +111,11 @@ aside {
   object-fit: contain;
 }
 
+/* =============== CATEGORY HEADINGS =============== */
+.category-section {
+  margin-bottom: 28px;
+}
+
 .section {
   margin: 28px 0 10px;
   font-size: 20px;
@@ -119,10 +124,39 @@ aside {
   text-align: left;
 }
 
+/* Collapse behavior */
+.grid.collapsed {
+  max-height: 180px; /* about one row of apps */
+  overflow: hidden;
+}
+
+.collapse-btn {
+  margin-top: 8px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.collapse-btn:hover {
+  background: #e5e7eb;
+}
+
 /* Dark mode override */
 @media (prefers-color-scheme: dark) {
   .section {
     color: #e6e7ea;
+  }
+  .collapse-btn {
+    background: #1f2937;
+    border-color: #374151;
+    color: #e5e7ea;
+  }
+  .collapse-btn:hover {
+    background: #374151;
   }
 }
 
