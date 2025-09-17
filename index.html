@@ -164,7 +164,7 @@ function render(apps){
 
     // Grid for apps
     const grid = document.createElement("div");
-    grid.className = "grid";
+    grid.className = "grid collapsed"; // collapsed by default
 
     // Sort apps A-Z inside category
     categories[cat].sort((a, b) => a.name.localeCompare(b.name));
@@ -194,6 +194,19 @@ function render(apps){
     });
 
     section.appendChild(grid);
+
+    // Collapse button (only if more than 1 row worth of apps)
+    if (categories[cat].length > 5) { // adjust threshold if needed
+      const toggle = document.createElement("button");
+      toggle.textContent = "Show more";
+      toggle.className = "collapse-btn";
+      toggle.onclick = () => {
+        grid.classList.toggle("collapsed");
+        toggle.textContent = grid.classList.contains("collapsed") ? "Show more" : "Show less";
+      };
+      section.appendChild(toggle);
+    }
+
     host.appendChild(section);
   });
 }
@@ -262,6 +275,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
