@@ -135,6 +135,7 @@ function render(apps){
   const host = document.getElementById("catalog");
   host.innerHTML = "";
 
+  console.log("Render function started");
   console.log("Apps loaded:", apps.map(a => ({ name: a.name, folder: a.folder })));
 
   if (!apps.length){
@@ -244,6 +245,7 @@ function render(apps){
       const userApps = await loadUserApps();
       const all = [...defaults, ...userApps];
       render(all);
+      console.log("Calling render with", all.length, "apps");
     }
 
     init();
@@ -277,6 +279,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
