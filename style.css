@@ -113,15 +113,19 @@ aside {
   margin-bottom: 28px;
 }
 
+/* Category headings */
 .section {
-  margin: 16px 0 8px;
+  margin: 16px 0 10px;
   font-size: 18px;
   font-weight: 700;
   text-align: left;
-  color: #111827;   /* dark text */
+  color: #ffffff;          /* ✅ white text so it shows up on dark bg */
+  text-transform: uppercase;
 }
 @media (prefers-color-scheme: dark) {
-  .section { color: #e6e7ea; }
+  .section {
+    color: #ffffff;        /* ✅ force white in dark mode */
+  }
 }
 
 /* =============== COLLAPSE BUTTON ONLY =============== */
