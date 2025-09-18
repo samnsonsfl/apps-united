@@ -159,27 +159,27 @@ aside {
 /* Apps grid layout */
 .grid {
   display: grid;
-  gap: 16px;
+  gap: 12px; /* a bit tighter so more fit */
 }
 
 /* Phones (≤ 600px): 4 per row */
 @media (max-width: 600px) {
   .grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 /* Tablets (601–1024px): 6 per row */
 @media (min-width: 601px) and (max-width: 1024px) {
   .grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 }
 
 /* Desktops (≥ 1025px): 8 per row */
 @media (min-width: 1025px) {
   .grid {
-    grid-template-columns: repeat(8, 1fr);
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 }
 
