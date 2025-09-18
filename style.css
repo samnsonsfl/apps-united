@@ -160,11 +160,6 @@ aside {
   background: #e5e7eb;
 }
 
-/* ✅ Hide apps after the 4th when collapsed */
-.grid.collapsed .tile:nth-child(n+5) {
-  display: none;
-}
-
 /* Dark mode override */
 @media (prefers-color-scheme: dark) {
   .section {
