@@ -156,30 +156,30 @@ aside {
   }
 }
 
-/* Apps grid layout */
+/* ================= GRID FIX ================= */
 .grid {
-  display: grid;
-  gap: 12px; /* a bit tighter so more fit */
+  display: grid !important;
+  gap: 12px !important;
 }
 
 /* Phones (≤ 600px): 4 per row */
 @media (max-width: 600px) {
   .grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
 }
 
 /* Tablets (601–1024px): 6 per row */
 @media (min-width: 601px) and (max-width: 1024px) {
   .grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
   }
 }
 
 /* Desktops (≥ 1025px): 8 per row */
 @media (min-width: 1025px) {
   .grid {
-    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   }
 }
 
