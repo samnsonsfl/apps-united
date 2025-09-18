@@ -160,12 +160,12 @@ function render(apps){
     section.className = "category-section";
 
     // Category title
-    const heading = document.createElement("div");
-    heading.className = "section";
-    heading.textContent = cat;
-    heading.style.background = "white";
-    heading.style.padding = "6px";
-    section.appendChild(heading);
+const heading = document.createElement("div");
+heading.className = "section";
+heading.textContent = cat.toUpperCase(); // 👈 force uppercase
+heading.style.background = "white";
+heading.style.padding = "6px";
+section.appendChild(heading);
 
     // Grid for apps
     const grid = document.createElement("div");
@@ -283,5 +283,6 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
