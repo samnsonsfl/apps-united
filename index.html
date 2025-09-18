@@ -156,16 +156,16 @@ function render(apps){
     const section = document.createElement("div");
     section.className = "category-section";
 
-    // ✅ Category title
+    // ✅ Category title stays
     const heading = document.createElement("div");
     heading.className = "section";
     heading.textContent = cat;
     section.appendChild(heading);
 
-    // ✅ Grid always comes right after heading
+    // Grid for apps
     const grid = document.createElement("div");
     grid.className = "grid";
-    section.appendChild(grid);
+    section.appendChild(grid); // ✅ append grid right after heading
 
     // Sort apps A-Z inside category
     categories[cat].sort((a, b) => a.name.localeCompare(b.name));
@@ -198,11 +198,11 @@ function render(apps){
       });
     };
 
-    // ✅ Show only first 5 initially
-    renderApps(categories[cat].slice(0, 5));
+    // Show only first 8 initially
+    renderApps(categories[cat].slice(0, 8));
 
-    // Collapse button (if more than 5 apps)
-    if (categories[cat].length > 5) {
+    // Collapse button (if more than 8 apps)
+    if (categories[cat].length > 8) {
       const toggle = document.createElement("button");
       toggle.textContent = "Show more";
       toggle.className = "collapse-btn";
@@ -214,7 +214,7 @@ function render(apps){
           renderApps(categories[cat]);   // all apps
           toggle.textContent = "Show less";
         } else {
-          renderApps(categories[cat].slice(0, 5)); // back to 5
+          renderApps(categories[cat].slice(0, 8)); // back to 8
           toggle.textContent = "Show more";
         }
       };
@@ -225,6 +225,7 @@ function render(apps){
     host.appendChild(section);
   });
 }
+
 
     // =============== LOAD APPS ===============
     async function loadUserApps(){
@@ -290,6 +291,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
