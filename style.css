@@ -12,7 +12,7 @@ header {
 }
 
 #catalog {
-  display: block;          /* ✅ stack sections vertically */
+  display: block;          /* stack sections vertically */
   padding: 20px;
 }
 
@@ -122,19 +122,7 @@ aside {
   text-transform: uppercase; /* make the category name uppercase */
 }
 
-/* =============== COLLAPSE BEHAVIOR =============== */
-.grid.collapsed {
-  max-height: 160px;   /* enough for ~1 row of apps */
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-}
-
-.grid.expanded {
-  max-height: 5000px;  /* big enough for lots of rows */
-  overflow: visible;
-  transition: max-height 0.3s ease;
-}
-
+/* =============== COLLAPSE BUTTON ONLY =============== */
 .collapse-btn {
   margin-top: 8px;
   background: #f3f4f6;
@@ -144,6 +132,9 @@ aside {
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
+  display: block;
+  margin-left: auto;
+  margin-right: auto; /* ✅ center the button under the grid */
 }
 
 .collapse-btn:hover {
