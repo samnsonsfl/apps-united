@@ -24,11 +24,11 @@
     main { max-width: 1040px; margin: 0 auto; padding: 16px; }
     .hint { color:#3b3f49; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; font-size: 14px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; position:relative; }
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px; /* optional: gives more breathing room */
+}
+    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; }
     .tile:hover { box-shadow: 0 10px 34px rgba(0,0,0,.10); }
     .app-icon { width: 128px; height: 128px; border-radius: 14px; background:#fff; border:1px solid #e5e7eb; display:grid; place-items:center; overflow:hidden }
     .app-icon img { width: 120px; height: 120px; object-fit: contain }
@@ -40,24 +40,27 @@
     .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
     .remove-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .remove-btn:hover {
-      background: rgba(220,38,38,0.85);
-    }
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.remove-btn:hover {
+  background: rgba(220,38,38,0.85); /* red on hover */
+}
+.tile {
+  position: relative; /* allow absolutely positioned remove button */
+}
 
     /* Main logo & Store button logos */
     .main-logo,
@@ -93,11 +96,13 @@
 <body>
   <header>
     <div class="wrap">
+      <!-- Top-left main logo -->
       <img src="favicon-192.png" alt="Apps United Logo" class="main-logo">
       <h1>Apps United</h1>
       <div style="margin-left:auto; flex:1; max-width: 460px;">
         <input id="q" type="search" placeholder="Search partners, categories…" aria-label="Search partners" />
       </div>
+      <!-- Store Button -->
       <button id="storeBtn" class="store-btn" title="Open App Store">
         <img src="app-store-192x192.png" alt="App Store" class="store-logo">
       </button>
@@ -107,8 +112,9 @@
   <main>
     <div class="hint" id="instructions">
       <strong>Make this your "All-Apps" launcher:</strong>
-      Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app to access all your other apps via your affiliate links.
+      Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app to access all your other apps via your affiliate links. iPhone (Safari): Share → Add to Home Screen. Android (Chrome): ⋮ menu → Install app / Add to Home Screen.
     </div>
+
     <div id="catalog" style="margin-top:14px;"></div>
   </main>
 
@@ -120,103 +126,104 @@
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
     const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
-    const supabaseKey = "YOUR_KEY";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // =============== UTILS ===============
     function openAffiliate(url){
       window.open(url, "_blank", "noopener,noreferrer");
     }
 
-    function render(apps){
-      const host = document.getElementById("catalog");
-      host.innerHTML = "";
+    // =============== RENDER ===============
+function render(apps){
+  const host = document.getElementById("catalog");
+  host.innerHTML = "";
 
-      if (!apps.length){
-        host.innerHTML = `<p class="muted">No apps available.</p>`;
-        return;
-      }
+  console.log("Render function started");
+  console.log("Apps loaded:", apps.map(a => ({ name: a.name, folder: a.folder })));
 
-      const categories = {};
-      apps.forEach(app => {
-        const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
-        if (!categories[cat]) categories[cat] = [];
-        categories[cat].push(app);
-      });
+  if (!apps.length){
+    host.innerHTML = `<p class="muted">No apps available.</p>`;
+    return;
+  }
 
-      const sortedCategories = Object.keys(categories).sort();
+  // Group by category (folder field)
+  const categories = {};
+  apps.forEach(app => {
+    const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(app);
+  });
 
-      sortedCategories.forEach(cat => {
-        const section = document.createElement("div");
-        section.className = "category-section";
+  // Sort categories A-Z
+  const sortedCategories = Object.keys(categories).sort();
 
-        const heading = document.createElement("div");
-        heading.className = "section";
-        heading.textContent = cat.toUpperCase();
-        heading.style.background = "white";
-        heading.style.padding = "6px";
-        section.appendChild(heading);
+  // Build each category section
+  sortedCategories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category-section";
 
-        // Grid for apps
-const grid = document.createElement("div");
-grid.className = "grid";
-section.appendChild(grid);
+    // Category title
+const heading = document.createElement("div");
+heading.className = "section";
+heading.textContent = cat.toUpperCase(); // 👈 force uppercase
+heading.style.background = "white";
+heading.style.padding = "6px";
+section.appendChild(heading);
 
-// Sort apps A-Z inside category
-categories[cat].sort((a, b) => a.name.localeCompare(b.name));
+    // Grid for apps
+    const grid = document.createElement("div");
+    grid.className = "grid collapsed"; // collapsed by default
 
-// Small helper to render a subset of apps
-function renderApps(appList) {
-  grid.innerHTML = "";
-  appList.forEach(app => {
-    const card = document.createElement("div");
-    card.className = "tile";
-    card.innerHTML = `
-      <button class="remove-btn" title="Remove app">×</button>
-      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-      <div class="name">${app.name}</div>
-      <div class="muted">${app.description || ''}</div>
-    `;
+    // Sort apps A-Z inside category
+    categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
-    card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
-    card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+    categories[cat].forEach(app => {
+      const card = document.createElement("div");
+      card.className = "tile";
 
-    card.querySelector(".remove-btn").onclick = (e)=>{
-      e.stopPropagation();
-      removeApp(app.id);
-    };
+      card.innerHTML = `
+        <button class="remove-btn" title="Remove app">×</button>
+        <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+        <div class="name">${app.name}</div>
+        <div class="muted">${app.description || ''}</div>
+      `;
 
-    grid.appendChild(card);
+      // Click name/icon → open affiliate
+      card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+      card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+
+      // Remove app
+      card.querySelector(".remove-btn").onclick = (e)=>{
+        e.stopPropagation();
+        removeApp(app.id);
+      };
+
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+
+    // Collapse button (only if more than 1 row worth of apps)
+    if (categories[cat].length > 5) { // adjust threshold if needed
+      const toggle = document.createElement("button");
+      toggle.textContent = "Show more";
+      toggle.className = "collapse-btn";
+      toggle.onclick = () => {
+        grid.classList.toggle("collapsed");
+        toggle.textContent = grid.classList.contains("collapsed") ? "Show more" : "Show less";
+      };
+      section.appendChild(toggle);
+    }
+
+    // 🔎 Debug log here
+    console.log("Adding category section:", cat);
+    host.appendChild(section);
   });
 }
 
-// Show first 4 initially
-renderApps(categories[cat].slice(0, 4));
 
-// Collapse button
-if (categories[cat].length > 4) {
-  const toggle = document.createElement("button");
-  toggle.textContent = "Show more";
-  toggle.className = "collapse-btn";
-
-  let expanded = false;
-  toggle.onclick = () => {
-    expanded = !expanded;
-    if (expanded) {
-      renderApps(categories[cat]);   // all apps
-      toggle.textContent = "Show less";
-    } else {
-      renderApps(categories[cat].slice(0, 4)); // back to 4
-      toggle.textContent = "Show more";
-    }
-  };
-
-  section.appendChild(toggle);
-}
-
-        host.appendChild(section);
-      });
-    }
-
+    // =============== LOAD APPS ===============
     async function loadUserApps(){
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
@@ -240,41 +247,43 @@ if (categories[cat].length > 4) {
       return data;
     }
 
+    // =============== INIT ===============
     async function init(){
       const defaults = await loadDefaultApps();
       const userApps = await loadUserApps();
       const all = [...defaults, ...userApps];
       render(all);
+      console.log("Calling render with", all.length, "apps");
     }
 
     init();
 
-    async function removeApp(appId){
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("You must be logged in.");
-        return;
-      }
+    // =============== REMOVE APP ===============
+async function removeApp(appId){
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    alert("You must be logged in.");
+    return;
+  }
 
-      const { error } = await supabase
-        .from("user_apps")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("app_id", appId);
+  const { error } = await supabase
+    .from("user_apps")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("app_id", appId);
 
-      if(error){
-        console.error(error);
-        alert("Error removing app.");
-      } else {
-        init();
-      }
-    }
+  if(error){
+    console.error(error);
+    alert("Error removing app.");
+  } else {
+    init(); // Refresh app list
+  }
+}
 
+    // =============== STORE BUTTON ACTION ===============
     document.getElementById("storeBtn").addEventListener("click", () => {
       window.location.href = "store.html";
     });
   </script>
 </body>
 </html>
-
-
