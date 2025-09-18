@@ -201,22 +201,27 @@ function render(apps){
     section.appendChild(grid);
 
     // Collapse button (only if more than 1 row worth of apps)
-    if (categories[cat].length > 5) { // adjust threshold if needed
-      const toggle = document.createElement("button");
-      toggle.textContent = "Show more";
-      toggle.className = "collapse-btn";
-      toggle.onclick = () => {
-        if (grid.classList.contains("collapsed")) {
-  grid.classList.remove("collapsed");
-  grid.classList.add("expanded");
-  toggle.textContent = "Show less";
-} else {
-  grid.classList.add("collapsed");
-  grid.classList.remove("expanded");
+if (categories[cat].length > 5) { // adjust threshold if needed
+  const toggle = document.createElement("button");
   toggle.textContent = "Show more";
-}
-      section.appendChild(toggle);
+  toggle.className = "collapse-btn";
+
+  toggle.onclick = () => {
+    if (grid.classList.contains("collapsed")) {
+      grid.classList.remove("collapsed");
+      grid.classList.add("expanded");
+      toggle.textContent = "Show less";
+    } else {
+      grid.classList.add("collapsed");
+      grid.classList.remove("expanded");
+      toggle.textContent = "Show more";
     }
+  };
+
+  // ✅ make sure this line is OUTSIDE the onclick
+  section.appendChild(toggle);
+}
+
 
     // 🔎 Debug log here
     console.log("Adding category section:", cat);
@@ -290,6 +295,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
