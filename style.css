@@ -128,8 +128,9 @@ aside {
 
 /* Collapse behavior */
 .grid.collapsed {
-  max-height: 180px; /* about one row of apps */
+  max-height: 160px;   /* enough for ~1 row */
   overflow: hidden;
+  transition: max-height 0.3s ease;
 }
 
 .collapse-btn {
@@ -145,6 +146,11 @@ aside {
 
 .collapse-btn:hover {
   background: #e5e7eb;
+}
+
+.grid.expanded {
+  max-height: 1000px;  /* large enough for many rows */
+  overflow: visible;
 }
 
 /* Dark mode override */
