@@ -162,9 +162,7 @@ function render(apps){
     // Category title
     const heading = document.createElement("div");
     heading.className = "section";
-    heading.textContent = "CATEGORY: " + cat;
-    heading.style.background = "yellow";
-    heading.style.padding = "6px";
+    heading.textContent = cat;
     section.appendChild(heading);
 
     // Grid for apps
@@ -283,6 +281,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
