@@ -47,8 +47,27 @@ header {
   min-height: 150px;
 }
 
+/* 🔥 Double size for icons, names, and shadows */
+.app-icon {
+  width: 128px;   /* was 64px */
+  height: 128px;  /* was 64px */
+  border-radius: 20px;
+}
+.app-icon img {
+  width: 120px;   /* was 60px */
+  height: 120px;  /* was 60px */
+  object-fit: contain;
+}
+.name {
+  font-size: 28px;   /* was 14px */
+  font-weight: 700;
+  text-align: center;
+}
+.tile {
+  box-shadow: 0 16px 52px rgba(0,0,0,0.14); /* doubled shadow */
+}
 .tile:hover {
-  transform: scale(1.05);
+  box-shadow: 0 20px 68px rgba(0,0,0,0.2);  /* doubled hover shadow */
 }
 
 aside {
