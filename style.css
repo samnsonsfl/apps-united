@@ -1,231 +1,293 @@
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-  background: #f6f7fb;
-  text-align: center;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Affiliate App</title>
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-header {
-  padding: 20px;
-  background: #2563eb;
-  color: #fff;
-}
+  <!-- App Icons -->
+  <link rel="icon" type="image/x-icon" href="favicon2.ico">
+  <link rel="apple-touch-icon" sizes="192x192" href="app-store-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="app-store-512x512.png">
 
-#catalog {
-  display: block;          /* stack sections vertically */
-  padding: 20px;
-}
-
-.store-btn {
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f6f7fb; color:#0b1220; }
+    header { position: sticky; top: 0; backdrop-filter: saturate(140%) blur(8px); background: rgba(255,255,255,.86); border-bottom: 1px solid #eef0f4; z-index: 10; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+    h1 { font-size: 18px; margin: 0; }
+    input[type=search] { width: 100%; border: 1px solid #d7dbe2; border-radius: 12px; padding: 10px 12px; }
+    main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+    .hint { color:#3b3f49; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; font-size: 14px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
+    .grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); gap: 14px; }
+    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; }
+    .tile:hover { box-shadow: 0 10px 34px rgba(0,0,0,.10); }
+    .app-icon { width: 64px; height: 64px; border-radius: 14px; background:#fff; border:1px solid #e5e7eb; display:grid; place-items:center; overflow:hidden }
+    .app-icon img { width: 60px; height: 60px; object-fit: contain }
+    .name { font-weight: 650; font-size: 14px; text-align:center }
+    .muted { color:#6b7280; font-size: 12px; text-align:center }
+    .section { margin: 22px 0 8px; font-weight: 600; color:#0b1220; }
+    button.link { appearance: none; border: 0; background: transparent; text-align: left; padding: 0; cursor: pointer; }
+    footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; }
+    .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
+    .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
+    .remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.6);
+  color: white;
   border: none;
-  background: transparent;
-  cursor: pointer;
-  margin-left: 12px;
-  display: flex;
-  align-items: center;
-}
-
-.main-logo,
-.store-logo {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  object-fit: contain;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  display: block;      /* prevents extra spacing below the image */
-}
-
-.tile {
-  background: transparent;
-  border-radius: 0;
-  padding: 14px 10px;
-  box-shadow: none;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap: 10px;
-  min-height: 150px;
-}
-
-.tile:hover {
-  transform: scale(1.05);
-}
-
-aside {
-  width:220px;
-  background:#111827;
-  color:#fff;
-  padding:20px;
-  display:flex;
-  flex-direction:column;
-  height:100vh;
-}
-
-#categories { flex:1; overflow-y:auto; margin-bottom:12px; }
-
-#storeSearch {
-  width:100%;
-  padding:8px 10px;
-  margin:8px 0;
-  border-radius:6px;
-  border:1px solid #374151;
-  background:#1f2937;
-  color:#e5e7eb;
-  font-size:14px;
-}
-
-#storeSearch::placeholder { color:#9ca3af; }
-
-#authBtnWrapper {
-  margin-top: auto;
-  padding-top: 12px;
-  display: flex;
-  align-items: center;       /* keep them vertically aligned */
-  justify-content: space-between;
-  gap: 8px;
-}
-
-#homeBtn, #authBtn {
-  flex: 1;                   
-  height: 40px;              /* 🔑 force same height */
-  display: flex;
-  align-items: center;       /* center contents vertically */
-  justify-content: center;   /* center contents horizontally */
-  padding: 0 10px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  color: #9ca3af;
-  cursor: pointer;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
   font-size: 14px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-}
-
-#homeBtn img {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  object-fit: contain;
-}
-
-/* =============== CATEGORY HEADINGS =============== */
-.category-section {
-  margin-bottom: 28px;
-}
-
-/* Category headings */
-.section {
-  margin: 16px 0 10px;
-  font-size: 18px;
-  font-weight: 700;
-  text-align: left;
-  color: #ffffff;          /* ✅ white text so it shows up on dark bg */
-  text-transform: uppercase;
-}
-@media (prefers-color-scheme: dark) {
-  .section {
-    color: #ffffff;        /* ✅ force white in dark mode */
-  }
-}
-
-/* =============== COLLAPSE BUTTON ONLY =============== */
-.collapse-btn {
-  margin-top: 8px;
-  background: #f3f4f6;
-  border: 1px solid #d1d5db;
-  padding: 6px 12px;
-  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  display: block;
-  margin-left: auto;
-  margin-right: auto; /* ✅ center the button under the grid */
-}
-
-.collapse-btn:hover {
-  background: #e5e7eb;
-}
-
-/* Dark mode override */
-@media (prefers-color-scheme: dark) {
-  .section {
-    color: #e6e7ea;
-  }
-  .collapse-btn {
-    background: #1f2937;
-    border-color: #374151;
-    color: #e5e7ea;
-  }
-  .collapse-btn:hover {
-    background: #374151;
-  }
-}
-
-/* Layout */
-.au-container {
-  min-height: 100vh;
-  padding: 20px;
-}
-.au-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  justify-content: center;
 }
-.au-brand { display: flex; gap: 8px; }
-
-/* Card */
-.au-card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 16px;
-  backdrop-filter: blur(6px);
+.remove-btn:hover {
+  background: rgba(220,38,38,0.85); /* red on hover */
 }
-.au-card-header { margin-bottom: 12px; }
-.au-card-footer { margin-top: 12px; }
-
-/* Inputs */
-.au-input {
-  width: 100%;
-  padding: 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.1);
-  color: white;
-}
-.au-input::placeholder { color: rgba(255,255,255,0.6); }
-
-/* Buttons */
-.au-btn {
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-weight: 500;
-}
-.au-btn-primary {
-  background: #2563eb;
-  color: white;
-}
-.au-btn-secondary {
-  background: rgba(255,255,255,0.1);
-  color: white;
+.tile {
+  position: relative; /* allow absolutely positioned remove button */
 }
 
-/* Grid helpers */
-.au-grid { display: grid; gap: 16px; }
-.au-grid-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-.au-row { display: flex; gap: 8px; align-items: center; }
-.au-row-between { display: flex; justify-content: space-between; align-items: center; }
+    /* Main logo & Store button logos */
+    .main-logo,
+    .store-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
 
-/* Text helpers */
-.au-subtle { font-size: 1rem; }
-.au-note { font-size: 0.85rem; color: rgba(255,255,255,0.8); }
-.au-badge {
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border: 1px solid rgba(255,255,255,0.4);
-  border-radius: 999px;
+    .store-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      margin-left: 12px;
+      display: flex;
+      align-items: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b1220; color: #e6e7ea; }
+      header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
+      .hint { background:#0e1422; border-color:#28324a; color:#cbd5e1 }
+      .tile { background: #131a2a; box-shadow: 0 8px 26px rgba(0,0,0,.5); }
+      input[type=search] { background:#0e1422; color:#e6e7ea; border-color:#28324a; }
+      .app-icon { background:#1b2240; }
+      .muted { color:#9aa3b2; }
+      .btn { border-color:#3b82f6; background:#3b82f6; color:#0b1220 }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <!-- Top-left main logo -->
+      <img src="favicon-192.png" alt="Apps United Logo" class="main-logo">
+      <h1>Apps United</h1>
+      <div style="margin-left:auto; flex:1; max-width: 460px;">
+        <input id="q" type="search" placeholder="Search partners, categories…" aria-label="Search partners" />
+      </div>
+      <!-- Store Button -->
+      <button id="storeBtn" class="store-btn" title="Open App Store">
+        <img src="app-store-192x192.png" alt="App Store" class="store-logo">
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="hint" id="instructions">
+      <strong>Make this your "All-Apps" launcher:</strong>
+      Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app to access all your other apps via your affiliate links. iPhone (Safari): Share → Add to Home Screen. Android (Chrome): ⋮ menu → Install app / Add to Home Screen.
+    </div>
+
+    <div id="catalog" style="margin-top:14px;"></div>
+  </main>
+
+  <footer>
+    Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
+  </footer>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+    const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // =============== UTILS ===============
+    function openAffiliate(url){
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+
+    // =============== RENDER ===============
+function render(apps){
+  const host = document.getElementById("catalog");
+  host.innerHTML = "";
+
+  if (!apps.length){
+    host.innerHTML = `<p class="muted">No apps available.</p>`;
+    return;
+  }
+
+  // Group by category (folder field)
+  const categories = {};
+  apps.forEach(app => {
+    const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(app);
+  });
+
+  // Sort categories A-Z
+  const sortedCategories = Object.keys(categories).sort();
+
+  // Build each category section
+  sortedCategories.forEach(cat => {
+    const section = document.createElement("div");
+    section.className = "category-section";
+
+    // ✅ Category title stays
+    const heading = document.createElement("div");
+    heading.className = "section";
+    heading.textContent = cat;
+    section.appendChild(heading);
+
+    // Grid for apps
+    const grid = document.createElement("div");
+    grid.className = "grid";
+    section.appendChild(grid); // ✅ append grid right after heading
+
+    // Sort apps A-Z inside category
+    categories[cat].sort((a, b) => a.name.localeCompare(b.name));
+
+    // Helper function to render cards
+    const renderApps = (appsToShow) => {
+      grid.innerHTML = "";
+      appsToShow.forEach(app => {
+        const card = document.createElement("div");
+        card.className = "tile";
+
+        card.innerHTML = `
+          <button class="remove-btn" title="Remove app">×</button>
+          <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+          <div class="name">${app.name}</div>
+          <div class="muted">${app.description || ''}</div>
+        `;
+
+        // Click name/icon → open affiliate
+        card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+        card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+
+        // Remove app
+        card.querySelector(".remove-btn").onclick = (e)=>{
+          e.stopPropagation();
+          removeApp(app.id);
+        };
+
+        grid.appendChild(card);
+      });
+    };
+
+    // Show only first 8 initially
+    renderApps(categories[cat].slice(0, 8));
+
+    // Collapse button (if more than 8 apps)
+    if (categories[cat].length > 8) {
+      const toggle = document.createElement("button");
+      toggle.textContent = "Show more";
+      toggle.className = "collapse-btn";
+
+      let expanded = false;
+      toggle.onclick = () => {
+        expanded = !expanded;
+        if (expanded) {
+          renderApps(categories[cat]);   // all apps
+          toggle.textContent = "Show less";
+        } else {
+          renderApps(categories[cat].slice(0, 8)); // back to 8
+          toggle.textContent = "Show more";
+        }
+      };
+
+      section.appendChild(toggle);
+    }
+
+    host.appendChild(section);
+  });
 }
+
+
+    // =============== LOAD APPS ===============
+    async function loadUserApps(){
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("user_apps")
+        .select("apps(id, name, href, description, logo_url, icon_url, folder)")
+        .eq("user_id", user.id);
+
+      if(error){ console.error(error); return []; }
+      return data.map(d=>d.apps);
+    }
+
+    async function loadDefaultApps(){
+      const { data, error } = await supabase
+        .from("apps")
+        .select("id, name, href, description, logo_url, icon_url, folder")
+        .eq("is_default", true);
+
+      if(error){ console.error(error); return []; }
+      return data;
+    }
+
+    // =============== INIT ===============
+    async function init(){
+      const defaults = await loadDefaultApps();
+      const userApps = await loadUserApps();
+      const all = [...defaults, ...userApps];
+      render(all);
+      console.log("Calling render with", all.length, "apps");
+    }
+
+    init();
+
+    // =============== REMOVE APP ===============
+async function removeApp(appId){
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    alert("You must be logged in.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("user_apps")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("app_id", appId);
+
+  if(error){
+    console.error(error);
+    alert("Error removing app.");
+  } else {
+    init(); // Refresh app list
+  }
+}
+
+    // =============== STORE BUTTON ACTION ===============
+    document.getElementById("storeBtn").addEventListener("click", () => {
+      window.location.href = "store.html";
+    });
+  </script>
+</body>
+</html>
