@@ -124,7 +124,7 @@ aside {
 
 /* =============== COLLAPSE BEHAVIOR =============== */
 .grid.collapsed {
-  max-height: 160px;   /* enough for ~1 row of apps */
+  max-height: 20px;   /* enough for ~1 row of apps */
   overflow: hidden;
   transition: max-height 0.3s ease;
 }
