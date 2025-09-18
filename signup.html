@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Create Account – Apps United</title>
+  <link rel="icon" type="image/png" href="favicon-192.png">
+  <style>
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#f6f7fb; color:#0b1220; }
+    header { position: sticky; top: 0; backdrop-filter: saturate(140%) blur(8px); background: rgba(255,255,255,.86); border-bottom: 1px solid #eef0f4; z-index: 10; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; }
+    .main-logo { width: 34px; height: 34px; border-radius: 8px; object-fit: contain; display:block; box-shadow:0 4px 8px rgba(0,0,0,0.15); }
+    h1 { font-size: 18px; margin: 0; }
+    main { max-width: 420px; margin: 40px auto; padding: 16px; }
+    .card { background:#fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 26px rgba(0,0,0,.07); }
+    label { display:block; margin:12px 0 6px; font-size:14px; font-weight:600; }
+    input { width:100%; padding:10px 12px; border:1px solid #d7dbe2; border-radius:12px; font-size:14px; }
+    .btn { margin-top:16px; width:100%; appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer; font-size:15px; }
+    .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06); }
+    .google-btn { background:#fff; color:#0b1220; border:1px solid #d7dbe2; margin-top:12px; }
+    footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; text-align:center; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b1220; color: #e6e7ea; }
+      header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
+      .card { background: #131a2a; box-shadow: 0 8px 26px rgba(0,0,0,.5); }
+      input { background:#0e1422; color:#e6e7ea; border-color:#28324a; }
+      .btn { border-color:#3b82f6; background:#3b82f6; color:#0b1220 }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <img src="favicon-192.png" alt="Apps United Logo" class="main-logo">
+      <h1>Apps United</h1>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2 style="margin-top:0; font-size:18px; font-weight:600;">Create Account</h2>
+      <form id="signup-form">
+        <label>Name</label>
+        <input type="text" id="name" required autocomplete="name">
+
+        <label>Email</label>
+        <input type="email" id="email" required autocomplete="email">
+
+        <label>Phone</label>
+        <input type="tel" id="phone" required autocomplete="tel">
+
+        <label>Password</label>
+        <input type="password" id="password" required autocomplete="new-password">
+
+        <label>Confirm Password</label>
+        <input type="password" id="confirm" required autocomplete="new-password">
+
+        <button type="submit" class="btn">Sign Up</button>
+        <button type="button" class="btn google-btn" id="google-login">Sign Up with Google</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
+  </footer>
+
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js";
+
+    const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co"; 
+    const supabaseKey = "YOUR-ANON-KEY"; 
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    document.getElementById("signup-form").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirm").value;
+
+      if(password !== confirm){
+        alert("Passwords do not match.");
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, phone }
+        }
+      });
+
+      if(error){
+        alert("Sign up failed: " + error.message);
+      } else {
+        alert("Account created! Please check your email for confirmation.");
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("google-login").addEventListener("click", async ()=>{
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google"
+      });
+      if(error) alert("Google login failed: " + error.message);
+    });
+  </script>
+</body>
+</html>
