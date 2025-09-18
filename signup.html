@@ -17,15 +17,22 @@
     .card { background:#fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 26px rgba(0,0,0,.07); }
     label { display:block; margin:12px 0 6px; font-size:14px; font-weight:600; }
     input { width:100%; padding:10px 12px; border:1px solid #d7dbe2; border-radius:12px; font-size:14px; }
+    input[type="checkbox"] { width:auto; margin-right:8px; }
     .btn { margin-top:16px; width:100%; appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer; font-size:15px; }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06); }
     footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; text-align:center; }
+    /* Modal */
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; }
+    .modal-content { background:#fff; padding:24px; border-radius:12px; max-width:600px; max-height:80vh; overflow:auto; }
+    .modal-content h3 { margin-top:0; }
+    .modal-content button { margin-top:16px; }
     @media (prefers-color-scheme: dark) {
       body { background: #0b1220; color: #e6e7ea; }
       header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
       .card { background: #131a2a; box-shadow: 0 8px 26px rgba(0,0,0,.5); }
       input { background:#0e1422; color:#e6e7ea; border-color:#28324a; }
       .btn { border-color:#3b82f6; background:#3b82f6; color:#0b1220 }
+      .modal-content { background:#1c2333; color:#e6e7ea; }
     }
   </style>
 </head>
@@ -56,6 +63,14 @@
         <label>Confirm Password</label>
         <input type="password" id="confirm" required autocomplete="new-password">
 
+        <!-- Terms Checkbox (disabled until modal is accepted) -->
+        <div style="margin-top:16px; display:flex; align-items:center;">
+          <input type="checkbox" id="terms" disabled>
+          <label for="terms">
+            <a href="#" id="open-terms">Terms and Conditions</a>
+          </label>
+        </div>
+
         <button type="submit" class="btn">Sign Up</button>
       </form>
     </div>
@@ -65,6 +80,26 @@
     Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
   </footer>
 
+  <!-- Terms Modal -->
+  <div id="terms-modal" class="modal">
+    <div class="modal-content">
+      <h3>Terms and Conditions</h3>
+      <p>
+        <!-- Replace with your real terms -->
+        These are the Terms and Conditions. By using Apps United, you agree to abide by them. 
+        Please read carefully before continuing.
+      </p>
+
+      <!-- Agreement inside modal -->
+      <div style="margin-top:16px;">
+        <input type="checkbox" id="agree-terms">
+        <label for="agree-terms">I have read the terms and conditions and I agree to it all</label>
+      </div>
+
+      <button id="close-terms" class="btn">Close</button>
+    </div>
+  </div>
+
   <script type="module">
     import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
@@ -72,8 +107,44 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ"; 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const termsCheckbox = document.getElementById("terms");
+    const agreeTerms = document.getElementById("agree-terms");
+    const termsModal = document.getElementById("terms-modal");
+
+    // Open modal when clicking link or disabled checkbox
+    document.getElementById("open-terms").addEventListener("click", (e)=>{
+      e.preventDefault();
+      termsModal.style.display = "flex";
+    });
+    termsCheckbox.addEventListener("click", (e)=>{
+      if(termsCheckbox.disabled){
+        e.preventDefault();
+        termsModal.style.display = "flex";
+      }
+    });
+
+    // Close modal
+    document.getElementById("close-terms").addEventListener("click", ()=>{
+      termsModal.style.display = "none";
+    });
+
+    // Enable main checkbox once agreed
+    agreeTerms.addEventListener("change", ()=>{
+      if(agreeTerms.checked){
+        termsCheckbox.disabled = false;
+        termsCheckbox.checked = true;
+        termsModal.style.display = "none";
+      }
+    });
+
+    // Signup logic
     document.getElementById("signup-form").addEventListener("submit", async (e)=>{
       e.preventDefault();
+      if(!termsCheckbox.checked){
+        alert("You must agree to the Terms and Conditions.");
+        return;
+      }
+
       const name = document.getElementById("name").value;
       const email = document.getElementById("email").value;
       const phone = document.getElementById("phone").value;
