@@ -114,12 +114,14 @@ aside {
 }
 
 .section {
-  margin: 28px 0 10px;
+  margin: 16px 0 8px;
   font-size: 18px;
   font-weight: 700;
-  color: #0b1220;
   text-align: left;
-  text-transform: uppercase; /* make the category name uppercase */
+  color: #111827;   /* dark text */
+}
+@media (prefers-color-scheme: dark) {
+  .section { color: #e6e7ea; }
 }
 
 /* =============== COLLAPSE BUTTON ONLY =============== */
