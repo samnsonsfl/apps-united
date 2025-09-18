@@ -12,10 +12,7 @@ header {
 }
 
 #catalog {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+  display: block;          /* ✅ stack sections vertically */
   padding: 20px;
 }
 
@@ -120,16 +117,21 @@ aside {
   margin: 28px 0 10px;
   font-size: 18px;
   font-weight: 700;
-  color: #ffffff;            /* white text */
+  color: #0b1220;
   text-align: left;
   text-transform: uppercase; /* make the category name uppercase */
 }
 
-
-/* Collapse behavior */
+/* =============== COLLAPSE BEHAVIOR =============== */
 .grid.collapsed {
-  max-height: 160px;   /* enough for ~1 row */
+  max-height: 160px;   /* enough for ~1 row of apps */
   overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.grid.expanded {
+  max-height: 5000px;  /* big enough for lots of rows */
+  overflow: visible;
   transition: max-height 0.3s ease;
 }
 
@@ -146,11 +148,6 @@ aside {
 
 .collapse-btn:hover {
   background: #e5e7eb;
-}
-
-.grid.expanded {
-  max-height: 1000px;  /* large enough for many rows */
-  overflow: visible;
 }
 
 /* Dark mode override */
