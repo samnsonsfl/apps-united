@@ -118,11 +118,13 @@ aside {
 
 .section {
   margin: 28px 0 10px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
-  color: #111827;
+  color: #ffffff;       /* white text */
   text-align: left;
+  text-transform: uppercase; /* make category name all caps */
 }
+
 
 /* Collapse behavior */
 .grid.collapsed {
