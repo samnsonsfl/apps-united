@@ -161,46 +161,62 @@
         heading.style.padding = "6px";
         section.appendChild(heading);
 
-        const grid = document.createElement("div");
-        grid.className = "grid collapsed";
+        // Grid for apps
+const grid = document.createElement("div");
+grid.className = "grid";
+section.appendChild(grid);
 
-        categories[cat].sort((a, b) => a.name.localeCompare(b.name));
+// Sort apps A-Z inside category
+categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
-        categories[cat].forEach(app => {
-          const card = document.createElement("div");
-          card.className = "tile";
+// Small helper to render a subset of apps
+function renderApps(appList) {
+  grid.innerHTML = "";
+  appList.forEach(app => {
+    const card = document.createElement("div");
+    card.className = "tile";
+    card.innerHTML = `
+      <button class="remove-btn" title="Remove app">×</button>
+      <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+      <div class="name">${app.name}</div>
+      <div class="muted">${app.description || ''}</div>
+    `;
 
-          card.innerHTML = `
-            <button class="remove-btn" title="Remove app">×</button>
-            <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-            <div class="name">${app.name}</div>
-            <div class="muted">${app.description || ''}</div>
-          `;
+    card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+    card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
 
-          card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
-          card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+    card.querySelector(".remove-btn").onclick = (e)=>{
+      e.stopPropagation();
+      removeApp(app.id);
+    };
 
-          card.querySelector(".remove-btn").onclick = (e)=>{
-            e.stopPropagation();
-            removeApp(app.id);
-          };
+    grid.appendChild(card);
+  });
+}
 
-          grid.appendChild(card);
-        });
+// Show first 4 initially
+renderApps(categories[cat].slice(0, 4));
 
-        section.appendChild(grid);
+// Collapse button
+if (categories[cat].length > 4) {
+  const toggle = document.createElement("button");
+  toggle.textContent = "Show more";
+  toggle.className = "collapse-btn";
 
-        // ✅ Show button if more than 4 apps
-        if (categories[cat].length > 4) {
-          const toggle = document.createElement("button");
-          toggle.textContent = "Show more";
-          toggle.className = "collapse-btn";
-          toggle.onclick = () => {
-            grid.classList.toggle("collapsed");
-            toggle.textContent = grid.classList.contains("collapsed") ? "Show more" : "Show less";
-          };
-          section.appendChild(toggle);
-        }
+  let expanded = false;
+  toggle.onclick = () => {
+    expanded = !expanded;
+    if (expanded) {
+      renderApps(categories[cat]);   // all apps
+      toggle.textContent = "Show less";
+    } else {
+      renderApps(categories[cat].slice(0, 4)); // back to 4
+      toggle.textContent = "Show more";
+    }
+  };
+
+  section.appendChild(toggle);
+}
 
         host.appendChild(section);
       });
@@ -265,3 +281,4 @@
   </script>
 </body>
 </html>
+
