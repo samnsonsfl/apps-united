@@ -162,7 +162,9 @@ function render(apps){
     // Category title
     const heading = document.createElement("div");
     heading.className = "section";
-    heading.textContent = cat.toUpperCase(); // uppercase
+    heading.textContent = "CATEGORY: " + cat;
+    heading.style.background = "yellow";
+    heading.style.padding = "6px";
     section.appendChild(heading);
 
     // Grid for apps
@@ -210,6 +212,7 @@ function render(apps){
       section.appendChild(toggle);
     }
 
+    // 🔎 Debug log here
     console.log("Adding category section:", cat);
     host.appendChild(section);
   });
@@ -281,6 +284,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
