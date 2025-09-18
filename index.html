@@ -135,9 +135,6 @@ function render(apps){
   const host = document.getElementById("catalog");
   host.innerHTML = "";
 
-  console.log("Render function started");
-  console.log("Apps loaded:", apps.map(a => ({ name: a.name, folder: a.folder })));
-
   if (!apps.length){
     host.innerHTML = `<p class="muted">No apps available.</p>`;
     return;
@@ -159,7 +156,7 @@ function render(apps){
     const section = document.createElement("div");
     section.className = "category-section";
 
-    // Category title
+    // ✅ Category title stays
     const heading = document.createElement("div");
     heading.className = "section";
     heading.textContent = cat;
@@ -168,6 +165,7 @@ function render(apps){
     // Grid for apps
     const grid = document.createElement("div");
     grid.className = "grid";
+    section.appendChild(grid); // ✅ append grid right after heading
 
     // Sort apps A-Z inside category
     categories[cat].sort((a, b) => a.name.localeCompare(b.name));
@@ -202,7 +200,6 @@ function render(apps){
 
     // Show only first 5 initially
     renderApps(categories[cat].slice(0, 5));
-    section.appendChild(grid);
 
     // Collapse button (if more than 5 apps)
     if (categories[cat].length > 5) {
@@ -225,10 +222,10 @@ function render(apps){
       section.appendChild(toggle);
     }
 
-    console.log("Adding category section:", cat);
     host.appendChild(section);
   });
 }
+
 
 
     // =============== LOAD APPS ===============
@@ -295,6 +292,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
