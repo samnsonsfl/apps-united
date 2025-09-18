@@ -162,74 +162,61 @@ function render(apps){
     // Category title
     const heading = document.createElement("div");
     heading.className = "section";
-    heading.textContent = cat;
+    heading.textContent = "CATEGORY: " + cat;
+    heading.style.background = "yellow";
+    heading.style.padding = "6px";
     section.appendChild(heading);
 
     // Grid for apps
     const grid = document.createElement("div");
-    grid.className = "grid";
+    grid.className = "grid collapsed"; // collapsed by default
 
     // Sort apps A-Z inside category
     categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
-    // Helper function to render cards
-    const renderApps = (appsToShow) => {
-      grid.innerHTML = "";
-      appsToShow.forEach(app => {
-        const card = document.createElement("div");
-        card.className = "tile";
+    categories[cat].forEach(app => {
+      const card = document.createElement("div");
+      card.className = "tile";
 
-        card.innerHTML = `
-          <button class="remove-btn" title="Remove app">×</button>
-          <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
-          <div class="name">${app.name}</div>
-          <div class="muted">${app.description || ''}</div>
-        `;
+      card.innerHTML = `
+        <button class="remove-btn" title="Remove app">×</button>
+        <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
+        <div class="name">${app.name}</div>
+        <div class="muted">${app.description || ''}</div>
+      `;
 
-        // Click name/icon → open affiliate
-        card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
-        card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
+      // Click name/icon → open affiliate
+      card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
+      card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
 
-        // Remove app
-        card.querySelector(".remove-btn").onclick = (e)=>{
-          e.stopPropagation();
-          removeApp(app.id);
-        };
+      // Remove app
+      card.querySelector(".remove-btn").onclick = (e)=>{
+        e.stopPropagation();
+        removeApp(app.id);
+      };
 
-        grid.appendChild(card);
-      });
-    };
+      grid.appendChild(card);
+    });
 
-    // Show only first 5 initially
-    renderApps(categories[cat].slice(0, 5));
     section.appendChild(grid);
 
-    // Collapse button (if more than 5 apps)
-    if (categories[cat].length > 5) {
+    // Collapse button (only if more than 1 row worth of apps)
+    if (categories[cat].length > 5) { // adjust threshold if needed
       const toggle = document.createElement("button");
       toggle.textContent = "Show more";
       toggle.className = "collapse-btn";
-
-      let expanded = false;
       toggle.onclick = () => {
-        expanded = !expanded;
-        if (expanded) {
-          renderApps(categories[cat]);   // all apps
-          toggle.textContent = "Show less";
-        } else {
-          renderApps(categories[cat].slice(0, 5)); // back to 5
-          toggle.textContent = "Show more";
-        }
+        grid.classList.toggle("collapsed");
+        toggle.textContent = grid.classList.contains("collapsed") ? "Show more" : "Show less";
       };
-
       section.appendChild(toggle);
     }
 
+    // 🔎 Debug log here
     console.log("Adding category section:", cat);
     host.appendChild(section);
   });
 }
-
 
 
     // =============== LOAD APPS ===============
@@ -296,3 +283,4 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
