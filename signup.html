@@ -19,7 +19,6 @@
     input { width:100%; padding:10px 12px; border:1px solid #d7dbe2; border-radius:12px; font-size:14px; }
     .btn { margin-top:16px; width:100%; appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:10px 14px; font-weight:600; cursor:pointer; font-size:15px; }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06); }
-    .google-btn { background:#fff; color:#0b1220; border:1px solid #d7dbe2; margin-top:12px; }
     footer { color:#6b7280; font-size: 12px; padding: 28px 16px 60px; max-width:1040px; margin:0 auto; text-align:center; }
     @media (prefers-color-scheme: dark) {
       body { background: #0b1220; color: #e6e7ea; }
@@ -58,7 +57,6 @@
         <input type="password" id="confirm" required autocomplete="new-password">
 
         <button type="submit" class="btn">Sign Up</button>
-        <button type="button" class="btn google-btn" id="google-login">Sign Up with Google</button>
       </form>
     </div>
   </main>
@@ -101,13 +99,6 @@
         alert("Account created! Please check your email for confirmation.");
         window.location.href = "index.html";
       }
-    });
-
-    document.getElementById("google-login").addEventListener("click", async ()=>{
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: "google"
-      });
-      if(error) alert("Google login failed: " + error.message);
     });
   </script>
 </body>
