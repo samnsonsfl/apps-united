@@ -162,7 +162,7 @@ function render(apps){
     // Category title
     const heading = document.createElement("div");
     heading.className = "section";
-    heading.textContent = cat;
+    heading.textContent = cat.toUpperCase(); // uppercase
     section.appendChild(heading);
 
     // Grid for apps
@@ -210,11 +210,11 @@ function render(apps){
       section.appendChild(toggle);
     }
 
-    // 🔎 Debug log here
     console.log("Adding category section:", cat);
     host.appendChild(section);
   });
 }
+
 
 
     // =============== LOAD APPS ===============
@@ -281,6 +281,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
