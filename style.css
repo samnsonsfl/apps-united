@@ -120,9 +120,9 @@ aside {
   margin: 28px 0 10px;
   font-size: 18px;
   font-weight: 700;
-  color: #ffffff;       /* white text */
+  color: #ffffff;            /* white text */
   text-align: left;
-  text-transform: uppercase; /* make category name all caps */
+  text-transform: uppercase; /* make the category name uppercase */
 }
 
 
