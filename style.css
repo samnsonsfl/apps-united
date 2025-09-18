@@ -118,11 +118,13 @@ aside {
 
 .section {
   margin: 28px 0 10px;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 700;
-  color: #ffffff;            /* white text */
+  color: #111827;
   text-align: left;
-  text-transform: uppercase; /* make the category name uppercase */
+  background: #f3f4f6;  /* light gray background */
+  padding: 6px 10px;
+  border-radius: 6px;
 }
 
 
