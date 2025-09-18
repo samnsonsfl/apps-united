@@ -111,9 +111,30 @@
 
   <main>
     <div class="hint" id="instructions">
-      <strong>Make this your "All-Apps" launcher:</strong>
-      Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app to access all your other apps via your affiliate links. iPhone (Safari): Share → Add to Home Screen. Android (Chrome): ⋮ menu → Install app / Add to Home Screen.
-    </div>
+  <strong>Make this your "Apps-Hub" launcher:</strong>
+  <span id="moreText" style="display:none;">
+    Open this page on your phone, then <em>Add to Home Screen</em>. Use this as your main app 
+    to access all your other apps via your affiliate links. 
+    iPhone (Safari): Share → Add to Home Screen. 
+    Android (Chrome): ⋮ menu → Install app / Add to Home Screen.
+  </span>
+  <a href="javascript:void(0);" id="readMoreBtn">read more</a>
+</div>
+
+<script>
+  const btn = document.getElementById("readMoreBtn");
+  const moreText = document.getElementById("moreText");
+
+  btn.addEventListener("click", () => {
+    if (moreText.style.display === "none") {
+      moreText.style.display = "inline";
+      btn.textContent = "read less";
+    } else {
+      moreText.style.display = "none";
+      btn.textContent = "read more";
+    }
+  });
+</script>
 
     <div id="catalog" style="margin-top:14px;"></div>
   </main>
@@ -287,6 +308,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
