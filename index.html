@@ -206,9 +206,15 @@ function render(apps){
       toggle.textContent = "Show more";
       toggle.className = "collapse-btn";
       toggle.onclick = () => {
-        grid.classList.toggle("collapsed");
-        toggle.textContent = grid.classList.contains("collapsed") ? "Show more" : "Show less";
-      };
+        if (grid.classList.contains("collapsed")) {
+  grid.classList.remove("collapsed");
+  grid.classList.add("expanded");
+  toggle.textContent = "Show less";
+} else {
+  grid.classList.add("collapsed");
+  grid.classList.remove("expanded");
+  toggle.textContent = "Show more";
+}
       section.appendChild(toggle);
     }
 
@@ -284,6 +290,7 @@ async function removeApp(appId){
   </script>
 </body>
 </html>
+
 
 
 
