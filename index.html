@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Affiliate App</title>
-  
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -22,9 +22,11 @@
     h1 { font-size: 48px; margin: 0; }
     input[type=search] { width: 100%; border: 1px solid #d7dbe2; border-radius: 12px; padding: 10px 12px; }
     main { max-width: 1040px; margin: 0 auto; padding: 16px; }
+
     .hint { color:#3b3f49; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; font-size: 14px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
+
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; position: relative; }
+    .tile { background:#fff; border-radius: 22px; padding: 14px 10px; box-shadow: 0 8px 26px rgba(0,0,0,.07); display:flex; flex-direction:column; align-items:center; gap: 10px; min-height: 150px; position: relative; cursor:pointer; }
     .tile:hover { box-shadow: 0 10px 34px rgba(0,0,0,.10); }
     .app-icon { width: 128px; height: 128px; border-radius: 14px; background:#fff; border:4px solid #e5e7eb; display:grid; place-items:center; overflow:hidden }
     .app-icon img { width: 120px; height: 120px; object-fit: contain }
@@ -36,40 +38,35 @@
     .btn { appearance:none; border:1px solid #d7dbe2; background:#2563eb; color:#fff; border-radius:12px; padding:8px 12px; font-weight:600; cursor:pointer }
     .btn:hover{ box-shadow:0 6px 16px rgba(0,0,0,.06) }
     .remove-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 30px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%;
+      width: 20px; height: 20px; font-size: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;
     }
     .remove-btn:hover { background: rgba(220,38,38,0.85); }
-    .main-logo, .store-logo {
-      width: 75px;
-      height: 75px;
-      border-radius: 5px;
-      object-fit: contain;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    .store-btn {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      margin-left: 12px;
-      display: flex;
-      align-items: center;
-    }
-    /* Anchor tiles look like your original tiles */
-    a.tile { text-decoration: none; color: inherit; }
+    .main-logo, .store-logo { width: 75px; height: 75px; border-radius: 5px; object-fit: contain; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+    .store-btn { border: none; background: transparent; cursor: pointer; margin-left: 12px; display: flex; align-items: center; }
+
+    /* Tabs */
+    .tabs-wrap { margin-top: 18px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; box-shadow:0 8px 26px rgba(0,0,0,.07); overflow:hidden; }
+    .tab-bar { display:flex; gap:6px; align-items:center; padding:8px; border-bottom:1px solid #eef0f4; overflow:auto; }
+    .tab { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; background:#f3f4f6; cursor:pointer; white-space:nowrap; }
+    .tab.active { background:#dbeafe; }
+    .tab img { width:18px; height:18px; border-radius:4px; object-fit:contain; }
+    .tab .close { border:none; background:transparent; font-size:16px; line-height:1; cursor:pointer; opacity:.7; }
+    .tab .close:hover { opacity:1; }
+    .tab-spacer { flex:1; }
+
+    .tab-stage { position:relative; height: 74vh; background:#0b122005; }
+    .tab-stage iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:none; }
+    .tab-stage iframe.active { display:block; }
+
+    .blocked-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; }
+    .blocked-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; box-shadow:0 8px 26px rgba(0,0,0,.07); max-width:520px; }
+    .blocked-card p { margin:0 0 12px; }
+
+    /* Recents header */
     .row-head { display:flex; justify-content:space-between; align-items:center; margin: 26px 0 8px; }
+
     @media (prefers-color-scheme: dark) {
       body { background: #0b1220; color: #e6e7ea; }
       header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
@@ -79,6 +76,12 @@
       .app-icon { background:#1b2240; }
       .muted { color:#9aa3b2; }
       .btn { border-color:#3b82f6; background:#3b82f6; color:#0b1220 }
+
+      .tabs-wrap { background:#131a2a; border-color:#28324a; }
+      .tab-bar { border-bottom-color:#28324a; }
+      .tab { background:#0e1422; }
+      .tab.active { background:#1e293b; }
+      .blocked-card { background:#0e1422; border-color:#28324a; }
     }
   </style>
 </head>
@@ -124,6 +127,16 @@
       });
     </script>
 
+    <!-- Tabs -->
+    <div class="tabs-wrap" id="tabsWrap" style="display:none;">
+      <div class="tab-bar" id="tabBar">
+        <!-- tabs injected -->
+        <div class="tab-spacer"></div>
+        <button class="btn" id="closeAllBtn" type="button" title="Close all tabs">Close all</button>
+      </div>
+      <div class="tab-stage" id="tabStage"><!-- iframes injected --></div>
+    </div>
+
     <!-- App catalog -->
     <div id="catalog" style="margin-top:14px;"></div>
 
@@ -148,7 +161,9 @@
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // --- Recents manager ---
+    /* ======================
+       Recents (localStorage)
+       ====================== */
     const RECENTS_KEY = "au_recent_apps";
     const MAX_RECENTS = 15;
 
@@ -156,27 +171,17 @@
       try { return JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]"); }
       catch { return []; }
     }
-    function saveRecents(list) {
-      localStorage.setItem(RECENTS_KEY, JSON.stringify(list));
-    }
+    function saveRecents(list) { localStorage.setItem(RECENTS_KEY, JSON.stringify(list)); }
     function addToRecents(app) {
       const recents = getRecents();
       const i = recents.findIndex(r => r.href === app.href);
       if (i !== -1) recents.splice(i, 1);
-      recents.unshift({
-        name: app.name,
-        href: app.href,
-        icon: app.logo_url || app.icon_url || "",
-        ts: Date.now()
-      });
+      recents.unshift({ name: app.name, href: app.href, icon: app.logo_url || app.icon_url || "", ts: Date.now() });
       if (recents.length > MAX_RECENTS) recents.length = MAX_RECENTS;
       saveRecents(recents);
       renderRecents();
     }
-    function clearRecents() {
-      saveRecents([]);
-      renderRecents();
-    }
+    function clearRecents() { saveRecents([]); renderRecents(); }
     function renderRecents() {
       const host = document.getElementById("recent-list");
       if (!host) return;
@@ -186,18 +191,128 @@
         return;
       }
       host.innerHTML = recents.map(r => `
-        <a class="tile" href="${r.href}" target="_blank" rel="noopener noreferrer">
+        <div class="tile" onclick="openAppInTab({name: ${JSON.stringify(r.name)}, href: ${JSON.stringify(r.href)}, logo_url: ${JSON.stringify(r.icon)}})">
           <div class="app-icon"><img src="${r.icon}" alt=""></div>
           <div class="name">${r.name}</div>
           <div class="muted">Recently opened</div>
-        </a>
+        </div>
       `).join("");
     }
     document.getElementById("clearRecentsBtn").addEventListener("click", clearRecents);
 
-    // Keep for safety (not used directly)
+    /* ============
+       Tab Manager
+       ============ */
+    let openTabs = []; // {id, name, href, icon, iframe}
+    let activeTabId = null;
+
+    const tabsWrap = document.getElementById("tabsWrap");
+    const tabBar   = document.getElementById("tabBar");
+    const tabStage = document.getElementById("tabStage");
+    const closeAllBtn = document.getElementById("closeAllBtn");
+    closeAllBtn.addEventListener("click", () => {
+      openTabs = [];
+      activeTabId = null;
+      tabBar.querySelectorAll(".tab").forEach(el => el.remove());
+      tabStage.innerHTML = "";
+      tabsWrap.style.display = "none";
+    });
+
+    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+    function activateTab(id) {
+      activeTabId = id;
+      // mark active in bar
+      tabBar.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
+      // show iframe
+      tabStage.querySelectorAll("iframe").forEach(f => f.classList.toggle("active", f.dataset.id === id));
+    }
+
+    function closeTab(id) {
+      const idx = openTabs.findIndex(t => t.id === id);
+      if (idx === -1) return;
+      // remove DOM
+      const tabEl = tabBar.querySelector(`.tab[data-id="${id}"]`);
+      const frameEl = tabStage.querySelector(`iframe[data-id="${id}"]`);
+      tabEl?.remove();
+      frameEl?.remove();
+      // remove model
+      openTabs.splice(idx, 1);
+      // pick another active
+      if (activeTabId === id) {
+        if (openTabs[idx]) activateTab(openTabs[idx].id);
+        else if (openTabs[idx - 1]) activateTab(openTabs[idx - 1].id);
+        else {
+          activeTabId = null;
+          tabsWrap.style.display = openTabs.length ? "block" : "none";
+        }
+      }
+      if (!openTabs.length) tabsWrap.style.display = "none";
+    }
+
+    function showBlockedOverlay(frameEl, href) {
+      // Only one overlay per frame
+      if (frameEl.dataset.overlay) return;
+      frameEl.dataset.overlay = "1";
+      const overlay = document.createElement("div");
+      overlay.className = "blocked-overlay";
+      overlay.innerHTML = `
+        <div class="blocked-card">
+          <p>⚠️ This site won't load inside the launcher (it blocks embedding).</p>
+          <p><button class="btn" type="button">Open in new browser tab</button></p>
+        </div>
+      `;
+      overlay.querySelector("button").onclick = () => window.open(href, "_blank", "noopener,noreferrer");
+      frameEl.parentElement.appendChild(overlay);
+    }
+
+    function openAppInTab(app) {
+      addToRecents(app);
+
+      // If already open, just activate it
+      const existing = openTabs.find(t => t.href === app.href);
+      if (existing) { activateTab(existing.id); tabsWrap.style.display = "block"; return; }
+
+      const id = uid();
+      const icon = app.logo_url || app.icon_url || "";
+
+      // Create tab button
+      const tab = document.createElement("div");
+      tab.className = "tab";
+      tab.dataset.id = id;
+      tab.innerHTML = `
+        ${icon ? `<img src="${icon}" alt="">` : ""}
+        <span class="title">${app.name}</span>
+        <button class="close" title="Close tab" aria-label="Close">×</button>
+      `;
+      tab.querySelector(".close").addEventListener("click", (e) => { e.stopPropagation(); closeTab(id); });
+      tab.addEventListener("click", () => activateTab(id));
+      tabBar.insertBefore(tab, tabBar.querySelector(".tab-spacer"));
+
+      // Create iframe
+      const frame = document.createElement("iframe");
+      frame.dataset.id = id;
+      frame.referrerPolicy = "no-referrer";
+      // Load URL and set fallback if blocked
+      let loaded = false;
+      frame.addEventListener("load", () => { loaded = true; });
+      // If it doesn't load within 2000ms, assume blocked (common for X-Frame-Options/CSP)
+      const guard = setTimeout(() => { if (!loaded) showBlockedOverlay(frame, app.href); }, 2000);
+      frame.src = app.href;
+
+      tabStage.appendChild(frame);
+
+      openTabs.push({ id, name: app.name, href: app.href, icon, iframe: frame });
+      tabsWrap.style.display = "block";
+      activateTab(id);
+    }
+
+    // Keep optional helper (unused now)
     function openAffiliate(url){ window.open(url, "_blank", "noopener,noreferrer"); }
 
+    /* =========
+       Catalog
+       ========= */
     function render(apps){
       const host = document.getElementById("catalog");
       host.innerHTML = "";
@@ -233,29 +348,22 @@
         categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
         categories[cat].forEach(app => {
-          // Anchor tile: opens in new tab + records to recents
-          const card = document.createElement("a");
+          const card = document.createElement("div");
           card.className = "tile";
-          card.href = app.href;
-          card.target = "_blank";
-          card.rel = "noopener noreferrer";
           card.innerHTML = `
-            <button class="remove-btn" title="Remove app" aria-label="Remove app">×</button>
+            <button class="remove-btn" title="Remove app">×</button>
             <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
             <div class="name">${app.name}</div>
             <div class="muted">${app.description || ''}</div>
           `;
-
-          // Add to recents on click (before opening new tab)
-          card.addEventListener("click", () => addToRecents(app));
-
-          // prevent navigation when clicking the remove button
-          card.querySelector(".remove-btn").addEventListener("click", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            removeApp(app.id);
+          // open in tab on any main click
+          card.addEventListener("click", (e) => {
+            // ignore clicks on remove button
+            if (e.target.closest(".remove-btn")) return;
+            openAppInTab(app);
           });
-
+          // remove
+          card.querySelector(".remove-btn").onclick = (e)=>{ e.stopPropagation(); removeApp(app.id); };
           grid.appendChild(card);
         });
 
