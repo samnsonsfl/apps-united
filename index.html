@@ -228,6 +228,7 @@
       $$(".tab", tabBar).forEach(el => el.remove());
       tabsWrap.style.display = "none";
     });
+
     $("#focusBtn").addEventListener("click", () => {
       const t = openTabs.find(x => x.id === activeTabId);
       if (!t) return;
@@ -274,19 +275,33 @@
       if (!openTabs.length) tabsWrap.style.display = "none";
     }
 
-    // Focus existing named window without navigating; if gone, recreate it
+    // Focus existing named window without navigating; if gone or blank, fix it
     function focusOrReopen(t) {
       const name = t.windowName || windowNameFor(t);
+      let w = null;
+
       try {
-        // '' url means "attach to existing window by name without changing URL"
-        const w = window.open('', name);
-        if (w && !w.closed) {
-          t.win = w;
-          w.focus();
-          return;
-        }
+        // '' -> attach to existing named window *without navigating*
+        w = window.open('', name);
       } catch {}
-      // No existing window → open fresh at start URL
+
+      if (w && !w.closed) {
+        t.win = w;
+        try {
+          // If browser returned a brand-new about:blank, navigate it to saved URL
+          const looksBlank = (w.location && w.location.href === 'about:blank');
+          const noHistory  = (typeof w.history?.length === 'number' ? w.history.length === 0 : true);
+          if (looksBlank && noHistory) {
+            w.location.assign(t.href);
+          }
+        } catch {
+          // Cross-origin check can throw; still try to focus.
+        }
+        try { w.focus(); } catch {}
+        return;
+      }
+
+      // Couldn't attach -> open fresh with stable name
       t.win = window.open(t.href, name);
       t.windowName = name;
       if (!t.win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
@@ -296,17 +311,19 @@
     function openExternalManaged(app) {
       const windowName = windowNameFor(app);
 
-      // Already have a tab for this app?
-      let existing = openTabs.find(x => x.windowName === windowName)
-                 || openTabs.find(x => x.href === app.href);
+      // Already have a tab for this app? Reuse its window name and focus.
+      let existing = openTabs.find(x => x.windowName === windowName) 
+                  || openTabs.find(x => x.href === app.href);
+
       if (existing) {
-        existing.windowName = windowName; // ensure latest
-        activateTab(existing.id); // this will focus without navigating
+        existing.windowName = windowName; // ensure latest stable name
+        activateTab(existing.id);         // will call focusOrReopen(existing)
         return;
       }
 
-      // First time: open a new named window (creates or reuses same-name)
-      const win = window.open(app.href, windowName); // IMPORTANT: no "noopener" so we keep a handle
+      // First time: open named window so future activates don't navigate.
+      // IMPORTANT: do not use "noopener" here; we keep a handle for focus/close.
+      const win = window.open(app.href, windowName);
       if (!win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
 
       const t = {
