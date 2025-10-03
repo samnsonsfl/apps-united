@@ -165,6 +165,13 @@
     const $ = (s, r=document) => r.querySelector(s);
     const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
     function toast(msg, ms=2600){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
+    function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+    // Stable window name per app so we can refocus without navigation (no reset)
+    function windowNameFor(app) {
+      const base = (app.name || app.href || 'app').toLowerCase().replace(/[^a-z0-9]+/g, '_').slice(0, 40);
+      return `au_tab_${base}`;
+    }
 
     /* ======================
        Recents (localStorage)
@@ -205,15 +212,15 @@
     $("#clearRecentsBtn").addEventListener("click", clearRecents);
 
     /* ============
-       External Tab Manager
+       External Tab Manager (named windows)
        ============ */
-    // We track real browser tabs/windows and keep a reference so we can focus/close/reopen.
-    // Model: {id, name, href, icon, win?}
+    // Model: { id, name, href, icon, win?, windowName }
     let openTabs = [];
     let activeTabId = null;
 
     const tabsWrap = $("#tabsWrap");
     const tabBar   = $("#tabBar");
+
     $("#closeAllBtn").addEventListener("click", () => {
       openTabs.forEach(t => { if (t.win && !t.win.closed) try { t.win.close(); } catch {} });
       openTabs = [];
@@ -226,8 +233,6 @@
       if (!t) return;
       focusOrReopen(t);
     });
-
-    function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
     function addTabButton(t) {
       const tab = document.createElement("div");
@@ -249,17 +254,15 @@
       activeTabId = id;
       $$(".tab", tabBar).forEach(el => el.classList.toggle("active", el.dataset.id === id));
       tabsWrap.style.display = openTabs.length ? "block" : "none";
-
       const t = openTabs.find(x => x.id === id);
-      if (!t) return;
-      focusOrReopen(t);
+      if (t) focusOrReopen(t); // bring it to front without navigating
     }
 
     function closeTab(id) {
       const idx = openTabs.findIndex(t => t.id === id);
       if (idx === -1) return;
       const t = openTabs[idx];
-      // Attempt to close the window (will only work reliably if we opened it)
+      // Try to close the window (works reliably if we opened it)
       if (t.win && !t.win.closed) { try { t.win.close(); } catch {} }
       tabBar.querySelector(`.tab[data-id="${id}"]`)?.remove();
       openTabs.splice(idx, 1);
@@ -271,37 +274,48 @@
       if (!openTabs.length) tabsWrap.style.display = "none";
     }
 
+    // Focus existing named window without navigating; if gone, recreate it
     function focusOrReopen(t) {
+      const name = t.windowName || windowNameFor(t);
       try {
-        if (t.win && !t.win.closed) {
-          t.win.focus();
-        } else {
-          // Reopen and update the handle
-          t.win = window.open(t.href, "_blank");
-          if (!t.win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
+        // '' url means "attach to existing window by name without changing URL"
+        const w = window.open('', name);
+        if (w && !w.closed) {
+          t.win = w;
+          w.focus();
+          return;
         }
       } catch {}
+      // No existing window → open fresh at start URL
+      t.win = window.open(t.href, name);
+      t.windowName = name;
+      if (!t.win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
     }
 
+    // Open (or reuse) a named tab for this app and add it to our tab strip
     function openExternalManaged(app) {
-      // IMPORTANT: do NOT use "noopener" when you need a controllable handle
-      const win = window.open(app.href, "_blank");
-      if (!win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
+      const windowName = windowNameFor(app);
 
-      // If already have a tab for this href, just update handle & activate
-      const existing = openTabs.find(x => x.href === app.href);
+      // Already have a tab for this app?
+      let existing = openTabs.find(x => x.windowName === windowName)
+                 || openTabs.find(x => x.href === app.href);
       if (existing) {
-        existing.win = win;
-        activateTab(existing.id);
+        existing.windowName = windowName; // ensure latest
+        activateTab(existing.id); // this will focus without navigating
         return;
       }
+
+      // First time: open a new named window (creates or reuses same-name)
+      const win = window.open(app.href, windowName); // IMPORTANT: no "noopener" so we keep a handle
+      if (!win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
 
       const t = {
         id: uid(),
         name: app.name,
         href: app.href,
         icon: app.logo_url || app.icon_url || "",
-        win
+        win,
+        windowName
       };
       addTabButton(t);
       openTabs.push(t);
@@ -359,7 +373,7 @@
             <div class="name">${app.name}</div>
             <div class="muted">${app.description || ''}</div>
           `;
-          // open externally (managed)
+          // open externally (managed, named window)
           card.addEventListener("click", (e) => {
             if (e.target.closest(".remove-btn")) return;
             openApp(app);
@@ -410,7 +424,7 @@
       const userApps = await loadUserApps();
       render([...defaults, ...userApps]);
       renderRecents();
-      $("#tabsWrap").style.display = "none"; // will show after first open
+      $("#tabsWrap").style.display = "none"; // shows after first open
     }
 
     init();
