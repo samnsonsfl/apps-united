@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Affiliate App</title>
-  
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -45,9 +45,7 @@
     .main-logo, .store-logo { width: 75px; height: 75px; border-radius: 5px; object-fit: contain; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
     .store-btn { border: none; background: transparent; cursor: pointer; margin-left: 12px; display: flex; align-items: center; }
 
-    /* Tabs */
-    .prefs { display:flex; gap:10px; align-items:center; margin: 12px 0 4px; }
-    .toggle { display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#374151; }
+    /* External Tab Bar (no iframes) */
     .tabs-wrap { margin-top: 12px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; box-shadow:0 8px 26px rgba(0,0,0,.07); overflow:hidden; display:none; }
     .tab-bar { display:flex; gap:6px; align-items:center; padding:8px; border-bottom:1px solid #eef0f4; overflow:auto; }
     .tab { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; background:#f3f4f6; cursor:pointer; white-space:nowrap; }
@@ -58,10 +56,6 @@
     .tab .close:hover { opacity:1; }
     .tab-spacer { flex:1; }
     .bar-btn { margin-left:6px; }
-
-    .tab-stage { position:relative; height: 74vh; background:#0b122005; }
-    .tab-stage iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:none; }
-    .tab-stage iframe.active { display:block; }
 
     /* Toast */
     .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#111827; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; box-shadow:0 6px 16px rgba(0,0,0,.2); opacity:0; pointer-events:none; transition:opacity .25s; z-index: 50; }
@@ -129,21 +123,14 @@
       });
     </script>
 
-    <!-- Tabs prefs & bar -->
-    <div class="prefs">
-      <label class="toggle">
-        <input type="checkbox" id="tabsToggle"> Tabs mode
-      </label>
-    </div>
-
+    <!-- External Tabs (no iframes) -->
     <div class="tabs-wrap" id="tabsWrap">
       <div class="tab-bar" id="tabBar">
         <!-- tabs injected -->
         <div class="tab-spacer"></div>
-        <button class="btn bar-btn" id="popOutBtn" type="button" title="Open current tab in new browser tab">Pop out ↗</button>
+        <button class="btn bar-btn" id="focusBtn" type="button" title="Focus current tab">Focus</button>
         <button class="btn bar-btn" id="closeAllBtn" type="button" title="Close all tabs">Close all</button>
       </div>
-      <div class="tab-stage" id="tabStage"><!-- iframes injected --></div>
     </div>
 
     <!-- App catalog -->
@@ -178,15 +165,6 @@
     const $ = (s, r=document) => r.querySelector(s);
     const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
     function toast(msg, ms=2600){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
-
-    /* ======================
-       Tabs preference (LS)
-       ====================== */
-    const TABS_PREF_KEY = "au_tabs_enabled";
-    function tabsEnabled(){ return localStorage.getItem(TABS_PREF_KEY) !== "false"; } // default ON
-    function setTabsEnabled(v){ localStorage.setItem(TABS_PREF_KEY, v ? "true" : "false"); $("#tabsToggle").checked = !!v; $("#tabsWrap").style.display = v && openTabs.length ? "block" : "none"; }
-    $("#tabsToggle").addEventListener("change", (e)=> setTabsEnabled(e.target.checked));
-    setTabsEnabled(tabsEnabled());
 
     /* ======================
        Recents (localStorage)
@@ -227,159 +205,112 @@
     $("#clearRecentsBtn").addEventListener("click", clearRecents);
 
     /* ============
-       Tab Manager
+       External Tab Manager
        ============ */
-    // type: "internal" (iframe) | "external" (separate tab/window)
-    let openTabs = []; // {id, name, href, icon, type, iframe?, win?}
+    // We track real browser tabs/windows and keep a reference so we can focus/close/reopen.
+    // Model: {id, name, href, icon, win?}
+    let openTabs = [];
     let activeTabId = null;
 
     const tabsWrap = $("#tabsWrap");
     const tabBar   = $("#tabBar");
-    const tabStage = $("#tabStage");
-
     $("#closeAllBtn").addEventListener("click", () => {
-      // close external windows we opened (if still open)
-      openTabs.forEach(t => { if (t.type === "external" && t.win && !t.win.closed) try { t.win.close(); } catch {} });
+      openTabs.forEach(t => { if (t.win && !t.win.closed) try { t.win.close(); } catch {} });
       openTabs = [];
       activeTabId = null;
       $$(".tab", tabBar).forEach(el => el.remove());
-      tabStage.innerHTML = "";
       tabsWrap.style.display = "none";
     });
-
-    $("#popOutBtn").addEventListener("click", () => {
-      const t = openTabs.find(t => t.id === activeTabId);
+    $("#focusBtn").addEventListener("click", () => {
+      const t = openTabs.find(x => x.id === activeTabId);
       if (!t) return;
-      if (t.type === "external") {
-        // just focus it
-        try { t.win?.focus(); } catch {}
-        return;
-      }
-      // convert internal -> external
-      convertToExternal(t.id);
+      focusOrReopen(t);
     });
 
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
+    function addTabButton(t) {
+      const tab = document.createElement("div");
+      tab.className = "tab";
+      tab.dataset.id = t.id;
+      tab.innerHTML = `
+        ${t.icon ? `<img src="${t.icon}" alt="">` : ""}
+        <span class="title">${t.name}</span>
+        <span class="kind">↗</span>
+        <button class="close" title="Close tab" aria-label="Close">×</button>
+      `;
+      tab.querySelector(".close").addEventListener("click", (e) => { e.stopPropagation(); closeTab(t.id); });
+      tab.addEventListener("click", () => activateTab(t.id));
+      tabBar.insertBefore(tab, tabBar.querySelector(".tab-spacer"));
+      return tab;
+    }
+
     function activateTab(id) {
       activeTabId = id;
-      $$(".tab", tabBar).forEach(t => t.classList.toggle("active", t.dataset.id === id));
-      $$("iframe", tabStage).forEach(f => f.classList.toggle("active", f.dataset.id === id));
-      tabsWrap.style.display = tabsEnabled() && openTabs.length ? "block" : "none";
+      $$(".tab", tabBar).forEach(el => el.classList.toggle("active", el.dataset.id === id));
+      tabsWrap.style.display = openTabs.length ? "block" : "none";
 
       const t = openTabs.find(x => x.id === id);
-      if (t && t.type === "external") {
-        // try to bring the external tab/window to front
-        try { if (t.win && !t.win.closed) { t.win.focus(); } else { t.kindEl.textContent = "↗ (reopen)"; } } catch {}
-      }
+      if (!t) return;
+      focusOrReopen(t);
     }
 
     function closeTab(id) {
       const idx = openTabs.findIndex(t => t.id === id);
       if (idx === -1) return;
       const t = openTabs[idx];
-      // close external window if we still hold it
-      if (t.type === "external" && t.win && !t.win.closed) { try { t.win.close(); } catch {} }
-      // remove DOM
+      // Attempt to close the window (will only work reliably if we opened it)
+      if (t.win && !t.win.closed) { try { t.win.close(); } catch {} }
       tabBar.querySelector(`.tab[data-id="${id}"]`)?.remove();
-      tabStage.querySelector(`iframe[data-id="${id}"]`)?.remove();
       openTabs.splice(idx, 1);
-      // select neighbor
       if (activeTabId === id) {
         if (openTabs[idx]) activateTab(openTabs[idx].id);
         else if (openTabs[idx - 1]) activateTab(openTabs[idx - 1].id);
-        else { activeTabId = null; tabsWrap.style.display = tabsEnabled() && openTabs.length ? "block" : "none"; }
+        else { activeTabId = null; tabsWrap.style.display = openTabs.length ? "block" : "none"; }
       }
       if (!openTabs.length) tabsWrap.style.display = "none";
     }
 
-    function openExternalManaged(app, existingTab) {
-      // IMPORTANT: do NOT use "noopener" if you want a controllable handle
-      const win = window.open(app.href, "_blank"); // we keep a handle so we can focus/close later
-      if (!win) { toast("Your browser blocked the new tab. Allow pop-ups for this site."); }
-      if (existingTab) {
-        existingTab.type = "external";
-        existingTab.win  = win;
-        existingTab.iframe?.remove();
-        existingTab.iframe = null;
-        existingTab.kindEl.textContent = "↗";
-        return existingTab;
-      }
-      const id = uid();
-      const t = addTabButton({ id, name: app.name, icon: app.logo_url || app.icon_url || "", kind: "↗" });
-      openTabs.push({ id, name: app.name, href: app.href, icon: app.logo_url || app.icon_url || "", type:"external", win, iframe:null, kindEl: t.kindEl });
-      activateTab(id);
-      return t;
-    }
-
-    function convertToExternal(id) {
-      const t = openTabs.find(x => x.id === id);
-      if (!t) return;
-      // open external window and clean up iframe
-      openExternalManaged({ name: t.name, href: t.href, logo_url: t.icon }, t);
-      toast(`Popped out "${t.name}" to a new tab.`);
-    }
-
-    function addTabButton({ id, name, icon, kind }) {
-      const tab = document.createElement("div");
-      tab.className = "tab";
-      tab.dataset.id = id;
-      tab.innerHTML = `
-        ${icon ? `<img src="${icon}" alt="">` : ""}
-        <span class="title">${name}</span>
-        <span class="kind">${kind || ""}</span>
-        <button class="close" title="Close tab" aria-label="Close">×</button>
-      `;
-      tab.querySelector(".close").addEventListener("click", (e) => { e.stopPropagation(); closeTab(id); });
-      tab.addEventListener("click", () => activateTab(id));
-      tabBar.insertBefore(tab, tabBar.querySelector(".tab-spacer"));
-      return { el: tab, kindEl: tab.querySelector(".kind") };
-    }
-
-    function openAppInternal(app) {
-      // Create UI
-      const id   = uid();
-      const icon = app.logo_url || app.icon_url || "";
-      const tBtn = addTabButton({ id, name: app.name, icon, kind: "" });
-
-      const frame = document.createElement("iframe");
-      frame.dataset.id = id;
-      frame.referrerPolicy = "no-referrer";
-      tabStage.appendChild(frame);
-
-      const tabModel = { id, name: app.name, href: app.href, icon, type:"internal", iframe: frame, win: null, kindEl: tBtn.kindEl };
-      openTabs.push(tabModel);
-      activateTab(id);
-
-      let loaded = false;
-      frame.addEventListener("load", () => { loaded = true; });
-      frame.src = app.href;
-
-      // If it fails to load (blocked), auto convert to external but KEEP the tab entry
-      setTimeout(() => {
-        if (!loaded) {
-          tBtn.kindEl.textContent = "↗";
-          openExternalManaged(app, tabModel);
-          toast(`"${app.name}" blocks embedding. Opened in a new tab for you.`);
+    function focusOrReopen(t) {
+      try {
+        if (t.win && !t.win.closed) {
+          t.win.focus();
+        } else {
+          // Reopen and update the handle
+          t.win = window.open(t.href, "_blank");
+          if (!t.win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
         }
-      }, 1500);
-
-      return tabModel;
+      } catch {}
     }
 
-    function openApp(app){
+    function openExternalManaged(app) {
+      // IMPORTANT: do NOT use "noopener" when you need a controllable handle
+      const win = window.open(app.href, "_blank");
+      if (!win) toast("Your browser blocked the new tab. Allow pop-ups for this site.");
+
+      // If already have a tab for this href, just update handle & activate
+      const existing = openTabs.find(x => x.href === app.href);
+      if (existing) {
+        existing.win = win;
+        activateTab(existing.id);
+        return;
+      }
+
+      const t = {
+        id: uid(),
+        name: app.name,
+        href: app.href,
+        icon: app.logo_url || app.icon_url || "",
+        win
+      };
+      addTabButton(t);
+      openTabs.push(t);
+      activateTab(t.id);
+    }
+
+    function openApp(app) {
       addToRecents(app);
-
-      // If tabs off -> open external but create/activate a managed tab so you can switch/focus later.
-      if (!tabsEnabled()) { openExternalManaged(app); return; }
-
-      // If already open, just activate
-      const existing = openTabs.find(t => t.href === app.href);
-      if (existing) { activateTab(existing.id); try { existing.win?.focus(); } catch{} return; }
-
-      // Try internal first; auto-convert to external if blocked
-      openAppInternal(app);
-      $("#tabsWrap").style.display = "block";
+      openExternalManaged(app);
     }
 
     /* =========
@@ -396,7 +327,7 @@
 
       const categories = {};
       apps.forEach(app => {
-        const cat = app.folder && app.folder.trim() ? app.folder : "Unclassified";
+        const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
         if (!categories[cat]) categories[cat] = [];
         categories[cat].push(app);
       });
@@ -428,7 +359,7 @@
             <div class="name">${app.name}</div>
             <div class="muted">${app.description || ''}</div>
           `;
-          // open app (tabs/internal if possible, else external-managed)
+          // open externally (managed)
           card.addEventListener("click", (e) => {
             if (e.target.closest(".remove-btn")) return;
             openApp(app);
@@ -479,7 +410,7 @@
       const userApps = await loadUserApps();
       render([...defaults, ...userApps]);
       renderRecents();
-      $("#tabsWrap").style.display = tabsEnabled() && openTabs.length ? "block" : "none";
+      $("#tabsWrap").style.display = "none"; // will show after first open
     }
 
     init();
