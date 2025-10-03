@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Affiliate App</title>
-
+  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -22,7 +22,6 @@
     h1 { font-size: 48px; margin: 0; }
     input[type=search] { width: 100%; border: 1px solid #d7dbe2; border-radius: 12px; padding: 10px 12px; }
     main { max-width: 1040px; margin: 0 auto; padding: 16px; }
-
     .hint { color:#3b3f49; background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:12px 14px; font-size: 14px; box-shadow:0 6px 18px rgba(0,0,0,.05) }
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
@@ -47,22 +46,26 @@
     .store-btn { border: none; background: transparent; cursor: pointer; margin-left: 12px; display: flex; align-items: center; }
 
     /* Tabs */
-    .tabs-wrap { margin-top: 18px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; box-shadow:0 8px 26px rgba(0,0,0,.07); overflow:hidden; }
+    .prefs { display:flex; gap:10px; align-items:center; margin: 12px 0 4px; }
+    .toggle { display:inline-flex; align-items:center; gap:8px; font-size:14px; color:#374151; }
+    .tabs-wrap { margin-top: 12px; border:1px solid #e5e7eb; border-radius:14px; background:#fff; box-shadow:0 8px 26px rgba(0,0,0,.07); overflow:hidden; display:none; }
     .tab-bar { display:flex; gap:6px; align-items:center; padding:8px; border-bottom:1px solid #eef0f4; overflow:auto; }
     .tab { display:flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; background:#f3f4f6; cursor:pointer; white-space:nowrap; }
     .tab.active { background:#dbeafe; }
     .tab img { width:18px; height:18px; border-radius:4px; object-fit:contain; }
+    .tab .kind { font-size:12px; opacity:.7; }
     .tab .close { border:none; background:transparent; font-size:16px; line-height:1; cursor:pointer; opacity:.7; }
     .tab .close:hover { opacity:1; }
     .tab-spacer { flex:1; }
+    .bar-btn { margin-left:6px; }
 
     .tab-stage { position:relative; height: 74vh; background:#0b122005; }
     .tab-stage iframe { position:absolute; inset:0; width:100%; height:100%; border:0; display:none; }
     .tab-stage iframe.active { display:block; }
 
-    .blocked-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; padding:24px; text-align:center; }
-    .blocked-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; box-shadow:0 8px 26px rgba(0,0,0,.07); max-width:520px; }
-    .blocked-card p { margin:0 0 12px; }
+    /* Toast */
+    .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:#111827; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; box-shadow:0 6px 16px rgba(0,0,0,.2); opacity:0; pointer-events:none; transition:opacity .25s; z-index: 50; }
+    .toast.show { opacity:1; }
 
     /* Recents header */
     .row-head { display:flex; justify-content:space-between; align-items:center; margin: 26px 0 8px; }
@@ -81,7 +84,6 @@
       .tab-bar { border-bottom-color:#28324a; }
       .tab { background:#0e1422; }
       .tab.active { background:#1e293b; }
-      .blocked-card { background:#0e1422; border-color:#28324a; }
     }
   </style>
 </head>
@@ -127,12 +129,19 @@
       });
     </script>
 
-    <!-- Tabs -->
-    <div class="tabs-wrap" id="tabsWrap" style="display:none;">
+    <!-- Tabs prefs & bar -->
+    <div class="prefs">
+      <label class="toggle">
+        <input type="checkbox" id="tabsToggle"> Tabs mode
+      </label>
+    </div>
+
+    <div class="tabs-wrap" id="tabsWrap">
       <div class="tab-bar" id="tabBar">
         <!-- tabs injected -->
         <div class="tab-spacer"></div>
-        <button class="btn" id="closeAllBtn" type="button" title="Close all tabs">Close all</button>
+        <button class="btn bar-btn" id="popOutBtn" type="button" title="Open current tab in new browser tab">Pop out ↗</button>
+        <button class="btn bar-btn" id="closeAllBtn" type="button" title="Close all tabs">Close all</button>
       </div>
       <div class="tab-stage" id="tabStage"><!-- iframes injected --></div>
     </div>
@@ -154,12 +163,30 @@
     Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
   </footer>
 
+  <div id="toast" class="toast"></div>
+
   <!-- ✅ Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    /* ============
+       Tiny helpers
+       ============ */
+    const $ = (s, r=document) => r.querySelector(s);
+    const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
+    function toast(msg, ms=2600){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), ms); }
+
+    /* ======================
+       Tabs preference (LS)
+       ====================== */
+    const TABS_PREF_KEY = "au_tabs_enabled";
+    function tabsEnabled(){ return localStorage.getItem(TABS_PREF_KEY) !== "false"; } // default ON
+    function setTabsEnabled(v){ localStorage.setItem(TABS_PREF_KEY, v ? "true" : "false"); $("#tabsToggle").checked = !!v; $("#tabsWrap").style.display = v && openTabs.length ? "block" : "none"; }
+    $("#tabsToggle").addEventListener("change", (e)=> setTabsEnabled(e.target.checked));
+    setTabsEnabled(tabsEnabled());
 
     /* ======================
        Recents (localStorage)
@@ -183,132 +210,177 @@
     }
     function clearRecents() { saveRecents([]); renderRecents(); }
     function renderRecents() {
-      const host = document.getElementById("recent-list");
-      if (!host) return;
+      const host = $("#recent-list");
       const recents = getRecents();
       if (!recents.length) {
         host.innerHTML = `<p class="muted" style="grid-column: 1/-1; text-align:center;">No recent apps yet.</p>`;
         return;
       }
       host.innerHTML = recents.map(r => `
-        <div class="tile" onclick="openAppInTab({name: ${JSON.stringify(r.name)}, href: ${JSON.stringify(r.href)}, logo_url: ${JSON.stringify(r.icon)}})">
+        <div class="tile" onclick='openApp({name:${JSON.stringify(r.name)}, href:${JSON.stringify(r.href)}, logo_url:${JSON.stringify(r.icon)}})'>
           <div class="app-icon"><img src="${r.icon}" alt=""></div>
           <div class="name">${r.name}</div>
           <div class="muted">Recently opened</div>
         </div>
       `).join("");
     }
-    document.getElementById("clearRecentsBtn").addEventListener("click", clearRecents);
+    $("#clearRecentsBtn").addEventListener("click", clearRecents);
 
     /* ============
        Tab Manager
        ============ */
-    let openTabs = []; // {id, name, href, icon, iframe}
+    // type: "internal" (iframe) | "external" (separate tab/window)
+    let openTabs = []; // {id, name, href, icon, type, iframe?, win?}
     let activeTabId = null;
 
-    const tabsWrap = document.getElementById("tabsWrap");
-    const tabBar   = document.getElementById("tabBar");
-    const tabStage = document.getElementById("tabStage");
-    const closeAllBtn = document.getElementById("closeAllBtn");
-    closeAllBtn.addEventListener("click", () => {
+    const tabsWrap = $("#tabsWrap");
+    const tabBar   = $("#tabBar");
+    const tabStage = $("#tabStage");
+
+    $("#closeAllBtn").addEventListener("click", () => {
+      // close external windows we opened (if still open)
+      openTabs.forEach(t => { if (t.type === "external" && t.win && !t.win.closed) try { t.win.close(); } catch {} });
       openTabs = [];
       activeTabId = null;
-      tabBar.querySelectorAll(".tab").forEach(el => el.remove());
+      $$(".tab", tabBar).forEach(el => el.remove());
       tabStage.innerHTML = "";
       tabsWrap.style.display = "none";
+    });
+
+    $("#popOutBtn").addEventListener("click", () => {
+      const t = openTabs.find(t => t.id === activeTabId);
+      if (!t) return;
+      if (t.type === "external") {
+        // just focus it
+        try { t.win?.focus(); } catch {}
+        return;
+      }
+      // convert internal -> external
+      convertToExternal(t.id);
     });
 
     function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
 
     function activateTab(id) {
       activeTabId = id;
-      // mark active in bar
-      tabBar.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.id === id));
-      // show iframe
-      tabStage.querySelectorAll("iframe").forEach(f => f.classList.toggle("active", f.dataset.id === id));
+      $$(".tab", tabBar).forEach(t => t.classList.toggle("active", t.dataset.id === id));
+      $$("iframe", tabStage).forEach(f => f.classList.toggle("active", f.dataset.id === id));
+      tabsWrap.style.display = tabsEnabled() && openTabs.length ? "block" : "none";
+
+      const t = openTabs.find(x => x.id === id);
+      if (t && t.type === "external") {
+        // try to bring the external tab/window to front
+        try { if (t.win && !t.win.closed) { t.win.focus(); } else { t.kindEl.textContent = "↗ (reopen)"; } } catch {}
+      }
     }
 
     function closeTab(id) {
       const idx = openTabs.findIndex(t => t.id === id);
       if (idx === -1) return;
+      const t = openTabs[idx];
+      // close external window if we still hold it
+      if (t.type === "external" && t.win && !t.win.closed) { try { t.win.close(); } catch {} }
       // remove DOM
-      const tabEl = tabBar.querySelector(`.tab[data-id="${id}"]`);
-      const frameEl = tabStage.querySelector(`iframe[data-id="${id}"]`);
-      tabEl?.remove();
-      frameEl?.remove();
-      // remove model
+      tabBar.querySelector(`.tab[data-id="${id}"]`)?.remove();
+      tabStage.querySelector(`iframe[data-id="${id}"]`)?.remove();
       openTabs.splice(idx, 1);
-      // pick another active
+      // select neighbor
       if (activeTabId === id) {
         if (openTabs[idx]) activateTab(openTabs[idx].id);
         else if (openTabs[idx - 1]) activateTab(openTabs[idx - 1].id);
-        else {
-          activeTabId = null;
-          tabsWrap.style.display = openTabs.length ? "block" : "none";
-        }
+        else { activeTabId = null; tabsWrap.style.display = tabsEnabled() && openTabs.length ? "block" : "none"; }
       }
       if (!openTabs.length) tabsWrap.style.display = "none";
     }
 
-    function showBlockedOverlay(frameEl, href) {
-      // Only one overlay per frame
-      if (frameEl.dataset.overlay) return;
-      frameEl.dataset.overlay = "1";
-      const overlay = document.createElement("div");
-      overlay.className = "blocked-overlay";
-      overlay.innerHTML = `
-        <div class="blocked-card">
-          <p>⚠️ This site won't load inside the launcher (it blocks embedding).</p>
-          <p><button class="btn" type="button">Open in new browser tab</button></p>
-        </div>
-      `;
-      overlay.querySelector("button").onclick = () => window.open(href, "_blank", "noopener,noreferrer");
-      frameEl.parentElement.appendChild(overlay);
+    function openExternalManaged(app, existingTab) {
+      // IMPORTANT: do NOT use "noopener" if you want a controllable handle
+      const win = window.open(app.href, "_blank"); // we keep a handle so we can focus/close later
+      if (!win) { toast("Your browser blocked the new tab. Allow pop-ups for this site."); }
+      if (existingTab) {
+        existingTab.type = "external";
+        existingTab.win  = win;
+        existingTab.iframe?.remove();
+        existingTab.iframe = null;
+        existingTab.kindEl.textContent = "↗";
+        return existingTab;
+      }
+      const id = uid();
+      const t = addTabButton({ id, name: app.name, icon: app.logo_url || app.icon_url || "", kind: "↗" });
+      openTabs.push({ id, name: app.name, href: app.href, icon: app.logo_url || app.icon_url || "", type:"external", win, iframe:null, kindEl: t.kindEl });
+      activateTab(id);
+      return t;
     }
 
-    function openAppInTab(app) {
-      addToRecents(app);
+    function convertToExternal(id) {
+      const t = openTabs.find(x => x.id === id);
+      if (!t) return;
+      // open external window and clean up iframe
+      openExternalManaged({ name: t.name, href: t.href, logo_url: t.icon }, t);
+      toast(`Popped out "${t.name}" to a new tab.`);
+    }
 
-      // If already open, just activate it
-      const existing = openTabs.find(t => t.href === app.href);
-      if (existing) { activateTab(existing.id); tabsWrap.style.display = "block"; return; }
-
-      const id = uid();
-      const icon = app.logo_url || app.icon_url || "";
-
-      // Create tab button
+    function addTabButton({ id, name, icon, kind }) {
       const tab = document.createElement("div");
       tab.className = "tab";
       tab.dataset.id = id;
       tab.innerHTML = `
         ${icon ? `<img src="${icon}" alt="">` : ""}
-        <span class="title">${app.name}</span>
+        <span class="title">${name}</span>
+        <span class="kind">${kind || ""}</span>
         <button class="close" title="Close tab" aria-label="Close">×</button>
       `;
       tab.querySelector(".close").addEventListener("click", (e) => { e.stopPropagation(); closeTab(id); });
       tab.addEventListener("click", () => activateTab(id));
       tabBar.insertBefore(tab, tabBar.querySelector(".tab-spacer"));
+      return { el: tab, kindEl: tab.querySelector(".kind") };
+    }
 
-      // Create iframe
+    function openAppInternal(app) {
+      // Create UI
+      const id   = uid();
+      const icon = app.logo_url || app.icon_url || "";
+      const tBtn = addTabButton({ id, name: app.name, icon, kind: "" });
+
       const frame = document.createElement("iframe");
       frame.dataset.id = id;
       frame.referrerPolicy = "no-referrer";
-      // Load URL and set fallback if blocked
-      let loaded = false;
-      frame.addEventListener("load", () => { loaded = true; });
-      // If it doesn't load within 2000ms, assume blocked (common for X-Frame-Options/CSP)
-      const guard = setTimeout(() => { if (!loaded) showBlockedOverlay(frame, app.href); }, 2000);
-      frame.src = app.href;
-
       tabStage.appendChild(frame);
 
-      openTabs.push({ id, name: app.name, href: app.href, icon, iframe: frame });
-      tabsWrap.style.display = "block";
+      const tabModel = { id, name: app.name, href: app.href, icon, type:"internal", iframe: frame, win: null, kindEl: tBtn.kindEl };
+      openTabs.push(tabModel);
       activateTab(id);
+
+      let loaded = false;
+      frame.addEventListener("load", () => { loaded = true; });
+      frame.src = app.href;
+
+      // If it fails to load (blocked), auto convert to external but KEEP the tab entry
+      setTimeout(() => {
+        if (!loaded) {
+          tBtn.kindEl.textContent = "↗";
+          openExternalManaged(app, tabModel);
+          toast(`"${app.name}" blocks embedding. Opened in a new tab for you.`);
+        }
+      }, 1500);
+
+      return tabModel;
     }
 
-    // Keep optional helper (unused now)
-    function openAffiliate(url){ window.open(url, "_blank", "noopener,noreferrer"); }
+    function openApp(app){
+      addToRecents(app);
+
+      // If tabs off -> open external but create/activate a managed tab so you can switch/focus later.
+      if (!tabsEnabled()) { openExternalManaged(app); return; }
+
+      // If already open, just activate
+      const existing = openTabs.find(t => t.href === app.href);
+      if (existing) { activateTab(existing.id); try { existing.win?.focus(); } catch{} return; }
+
+      // Try internal first; auto-convert to external if blocked
+      openAppInternal(app);
+      $("#tabsWrap").style.display = "block";
+    }
 
     /* =========
        Catalog
@@ -324,7 +396,7 @@
 
       const categories = {};
       apps.forEach(app => {
-        const cat = app.folder && app.folder.trim() ? app.folder : "Uncategorized";
+        const cat = app.folder && app.folder.trim() ? app.folder : "Unclassified";
         if (!categories[cat]) categories[cat] = [];
         categories[cat].push(app);
       });
@@ -356,11 +428,10 @@
             <div class="name">${app.name}</div>
             <div class="muted">${app.description || ''}</div>
           `;
-          // open in tab on any main click
+          // open app (tabs/internal if possible, else external-managed)
           card.addEventListener("click", (e) => {
-            // ignore clicks on remove button
             if (e.target.closest(".remove-btn")) return;
-            openAppInTab(app);
+            openApp(app);
           });
           // remove
           card.querySelector(".remove-btn").onclick = (e)=>{ e.stopPropagation(); removeApp(app.id); };
@@ -408,6 +479,7 @@
       const userApps = await loadUserApps();
       render([...defaults, ...userApps]);
       renderRecents();
+      $("#tabsWrap").style.display = tabsEnabled() && openTabs.length ? "block" : "none";
     }
 
     init();
