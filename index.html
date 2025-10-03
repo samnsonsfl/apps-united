@@ -67,6 +67,9 @@
       display: flex;
       align-items: center;
     }
+    /* Anchor tiles look like your original tiles */
+    a.tile { text-decoration: none; color: inherit; }
+    .row-head { display:flex; justify-content:space-between; align-items:center; margin: 26px 0 8px; }
     @media (prefers-color-scheme: dark) {
       body { background: #0b1220; color: #e6e7ea; }
       header { background: rgba(14,18,28,.7); border-bottom-color: #1c2333; }
@@ -121,20 +124,78 @@
       });
     </script>
 
+    <!-- App catalog -->
     <div id="catalog" style="margin-top:14px;"></div>
+
+    <!-- Recently opened -->
+    <div id="recents-section" style="margin-top:8px;">
+      <div class="row-head">
+        <div class="section" style="margin:0;">RECENTLY OPENED</div>
+        <button class="btn" id="clearRecentsBtn" type="button" title="Clear recently opened">Clear</button>
+      </div>
+      <div id="recent-list" class="grid"></div>
+    </div>
   </main>
 
   <footer>
     Affiliate destinations always open on the network (no WebViews), so tracking and deep links work.
   </footer>
 
-  <!-- ✅ Fixed Supabase import -->
+  <!-- ✅ Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseUrl = "https://pvfxettbmykvezwahohh.supabase.co";
     const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB2ZnhldHRibXlrdmV6d2Fob2hoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NTc2MzMsImV4cCI6MjA3MjMzMzYzM30.M5V-N3jYDs1Eijqb6ZjscNfEOSMMARe8HI20sRdAOTQ";
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+    // --- Recents manager ---
+    const RECENTS_KEY = "au_recent_apps";
+    const MAX_RECENTS = 15;
+
+    function getRecents() {
+      try { return JSON.parse(localStorage.getItem(RECENTS_KEY) || "[]"); }
+      catch { return []; }
+    }
+    function saveRecents(list) {
+      localStorage.setItem(RECENTS_KEY, JSON.stringify(list));
+    }
+    function addToRecents(app) {
+      const recents = getRecents();
+      const i = recents.findIndex(r => r.href === app.href);
+      if (i !== -1) recents.splice(i, 1);
+      recents.unshift({
+        name: app.name,
+        href: app.href,
+        icon: app.logo_url || app.icon_url || "",
+        ts: Date.now()
+      });
+      if (recents.length > MAX_RECENTS) recents.length = MAX_RECENTS;
+      saveRecents(recents);
+      renderRecents();
+    }
+    function clearRecents() {
+      saveRecents([]);
+      renderRecents();
+    }
+    function renderRecents() {
+      const host = document.getElementById("recent-list");
+      if (!host) return;
+      const recents = getRecents();
+      if (!recents.length) {
+        host.innerHTML = `<p class="muted" style="grid-column: 1/-1; text-align:center;">No recent apps yet.</p>`;
+        return;
+      }
+      host.innerHTML = recents.map(r => `
+        <a class="tile" href="${r.href}" target="_blank" rel="noopener noreferrer">
+          <div class="app-icon"><img src="${r.icon}" alt=""></div>
+          <div class="name">${r.name}</div>
+          <div class="muted">Recently opened</div>
+        </a>
+      `).join("");
+    }
+    document.getElementById("clearRecentsBtn").addEventListener("click", clearRecents);
+
+    // Keep for safety (not used directly)
     function openAffiliate(url){ window.open(url, "_blank", "noopener,noreferrer"); }
 
     function render(apps){
@@ -172,17 +233,29 @@
         categories[cat].sort((a, b) => a.name.localeCompare(b.name));
 
         categories[cat].forEach(app => {
-          const card = document.createElement("div");
+          // Anchor tile: opens in new tab + records to recents
+          const card = document.createElement("a");
           card.className = "tile";
+          card.href = app.href;
+          card.target = "_blank";
+          card.rel = "noopener noreferrer";
           card.innerHTML = `
-            <button class="remove-btn" title="Remove app">×</button>
+            <button class="remove-btn" title="Remove app" aria-label="Remove app">×</button>
             <div class="app-icon"><img src="${app.logo_url || app.icon_url || ''}" alt=""></div>
             <div class="name">${app.name}</div>
             <div class="muted">${app.description || ''}</div>
           `;
-          card.querySelector(".app-icon").onclick = ()=>openAffiliate(app.href);
-          card.querySelector(".name").onclick = ()=>openAffiliate(app.href);
-          card.querySelector(".remove-btn").onclick = (e)=>{ e.stopPropagation(); removeApp(app.id); };
+
+          // Add to recents on click (before opening new tab)
+          card.addEventListener("click", () => addToRecents(app));
+
+          // prevent navigation when clicking the remove button
+          card.querySelector(".remove-btn").addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            removeApp(app.id);
+          });
+
           grid.appendChild(card);
         });
 
@@ -226,6 +299,7 @@
       const defaults = await loadDefaultApps();
       const userApps = await loadUserApps();
       render([...defaults, ...userApps]);
+      renderRecents();
     }
 
     init();
