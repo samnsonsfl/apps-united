@@ -1,0 +1,13 @@
+{
+  "name": "apps-united-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "description": "Apps United — built-in tabbed browser for your apps",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^30.0.0"
+  }
+}
